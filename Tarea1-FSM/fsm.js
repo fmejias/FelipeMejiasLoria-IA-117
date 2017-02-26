@@ -73,9 +73,6 @@ module.exports = class Fsm {
         this._current = this._current.searchNextState(state, this._states);
         this._current.onEnter(eventEmitter, this, this._current.stateName);
 
-        //Esto se agrega para estar verificando el estado actual de la maquina, así como el mensaje recibido
-     //   console.log("El mensaje recibido es: " + event.msg);
-     //   console.log("El estado actual de la máquina de estados es: " + this._current.stateName);
         
       }
       console.log("\n");
