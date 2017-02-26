@@ -57,10 +57,10 @@ owner_1.assignOwnerInformation("FSM1", 1);
  event_6.assignEventInformation("Herido", "Furioso");
 
  var event_7 = new Event();
- event_5.assignEventInformation("Elemento en su area", "Enojado");
+ event_7.assignEventInformation("Elemento en su area", "Enojado");
 
  var event_8= new Event();
- event_6.assignEventInformation("Elemento fuera de su area", "Enojado");
+ event_8.assignEventInformation("Elemento fuera de su area", "Enojado");
 
  /*
  * Now, we have to create the Event Objects of the third state (Molesto)
@@ -136,15 +136,12 @@ eventEmitter.register(state_machine);
 
 //We define a new variable to change messages
 var message = "Herido";
+var messageList = ["Herido", "Sanando", "Elemento en su area", "Elemento fuera de su area"];
 
 //This function is changing the message
 function changeMessage(){
-	if(message == "encender"){
-		message = "apagar";
-	}
-	else{
-		message = "encender";
-	}
+  var indexMessage = Math.floor((Math.random() * 3));
+  message = messageList[indexMessage];
 }
 
 setInterval(() => {

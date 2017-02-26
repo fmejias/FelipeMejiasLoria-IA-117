@@ -66,6 +66,7 @@ module.exports = class State {
       if( (fsm._states[y].stateName == newStateName) ){
         fsm._states[y].stateValue = "activo";
         console.log("El estado que acaba de pasar a activo es: " + fsm._states[y].stateName);
+        
       }
     }     
   }

@@ -63,8 +63,9 @@ module.exports = class Fsm {
     } else {
       const state = this._current.accepts(event.msg, this._states); //Revisa todos los estados hasta encontrar el que responde al evento y sea el estado actual
       const accepted = state && state !== this._current.stateName;
-      console.log("El nombre del nuevo estado es: " + state);
       console.log("El nombre del estado actual es: " + this._current.stateName);
+      console.log("El mensaje recibido es: " + event.msg);
+      console.log("El nombre del nuevo estado es: " + state);
       if (accepted) {
         if (this._current) {
           this._current.onExit(eventEmitter, this);
@@ -73,10 +74,11 @@ module.exports = class Fsm {
         this._current.onEnter(eventEmitter, this, this._current.stateName);
 
         //Esto se agrega para estar verificando el estado actual de la maquina, así como el mensaje recibido
-        console.log("El mensaje recibido es: " + event.msg);
-        console.log("El estado actual de la máquina de estados es: " + this._current.stateName);
+     //   console.log("El mensaje recibido es: " + event.msg);
+     //   console.log("El estado actual de la máquina de estados es: " + this._current.stateName);
         
       }
+      console.log("\n");
     }
   }  
 }
