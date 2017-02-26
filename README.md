@@ -10,7 +10,9 @@ En este branch, se encuentra la implementación de la máquina de estados que re
 
 ##Alcances
 
-La máquina de estados se implementó en su totalidad.
+La máquina de estados se implementó en su totalidad. En la siguiente imagen se observa el resultado de la máquina implementada:
+
+https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/Tarea1-FSM/Tarea1-FSM/ResultadoImplementacionSimulacionComportamiento.PNG
 
 ##Referencias
 
