@@ -1,6 +1,6 @@
-﻿## Implementacion de la máquina de estados del bombillo
+﻿## Tarea1-FSM: Simulación simple de comportamiento.
 
-En este branch, se encuentra la implementación de la máquina de estados del bombillo.
+En este branch, se encuentra la implementación de la máquina de estados que realiza una simulación simple de comportamiento.
 
 ##Instrucciones de ejecución del programa
 
