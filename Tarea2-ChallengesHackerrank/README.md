@@ -22,7 +22,12 @@ Acá se encuentra la implementación de los dos desafíos.
 
 Ambos challenges se implementaron en su totalidad. En la siguiente imagen se observa el resultado del challenge saveprincess:
 
-![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/Tarea1-FSM/Tarea1-FSM/ResultadoImplementacionSimulacionComportamiento.PNG "Logo Title Text 1")
+![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Tarea2-ChallengesHackerrank/saveprincess.PNG "Save Princess Result")
+
+En la siguiente imagen se observa el resultado del challenge botclean:
+
+![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Tarea2-ChallengesHackerrank/botclean.PNG "Bot Clean Result")
+
 
 ##Referencias
 
