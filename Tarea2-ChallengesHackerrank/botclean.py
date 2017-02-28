@@ -46,54 +46,54 @@ def next_move(posr, posc, board):
             else:
                 print("UP")
 
-    elif((posc - 1 < 0 and posc + 1 > n - 1) and (posr -1 >= 0 and posr + 1 >= n - 1)):
-        if(posr == 0):
-            if(board[posr][posc] == "d"):
-                print("CLEAN")
-            elif(board[posr][posc - 1] == "d"):
-                print("LEFT")
-            elif(board[posr][posc + 1] == "d"):
-                print("RIGHT")
-            elif(board[posr+1][posc] == "d"):
-                print("DOWN")
-            else:
-                print("LEFT")
+    
+    elif(posr == 0 and (posc > 0 and posc < n-1)):
+        if(board[posr][posc] == "d"):
+            print("CLEAN")
+        elif(board[posr][posc - 1] == "d"):
+            print("LEFT")
+        elif(board[posr][posc + 1] == "d"):
+            print("RIGHT")
+        elif(board[posr+1][posc] == "d"):
+            print("DOWN")
+        else:
+            print("LEFT")
 
-        elif(posr == n - 1):
-            if(board[posr][posc] == "d"):
-                print("CLEAN")
-            elif(board[posr][posc - 1] == "d"):
-                print("LEFT")
-            elif(board[posr][posc + 1] == "d"):
-                print("RIGHT")
-            elif(board[posr-1][posc] == "d"):
-                print("UP")
-            else:
-                print("RIGHT")
+    elif(posr == n - 1 and (posc > 0 and posc < n-1) ):
+        if(board[posr][posc] == "d"):
+            print("CLEAN")
+        elif(board[posr][posc - 1] == "d"):
+            print("LEFT")
+        elif(board[posr][posc + 1] == "d"):
+            print("RIGHT")
+        elif(board[posr-1][posc] == "d"):
+            print("UP")
+        else:
+            print("RIGHT")
        
-        elif(posc == 0):
-            if(board[posr][posc] == "d"):
-                print("CLEAN")
-            elif(board[posr - 1][posc] == "d"):
-                print("UP")
-            elif(board[posr + 1][posc] == "d"):
-                print("DOWN")
-            elif(board[posr][posc+1] == "d"):
-                print("RIGHT")
-            else:
-                print("DOWN")
+    elif(posc == 0 and (posr > 0 and posr < n-1)):
+        if(board[posr][posc] == "d"):
+            print("CLEAN")
+        elif(board[posr - 1][posc] == "d"):
+            print("UP")
+        elif(board[posr + 1][posc] == "d"):
+            print("DOWN")
+        elif(board[posr][posc+1] == "d"):
+            print("RIGHT")
+        else:
+            print("DOWN")
                
-        elif(posc == n - 1):
-            if(board[posr][posc] == "d"):
-                print("CLEAN")
-            elif(board[posr-1][posc] == "d"):
-                print("UP")
-            elif(board[posr+1][posc] == "d"):
-                print("DOWN")
-            elif(board[posr][posc-1] == "d"):
-                print("LEFT")
-            else:
-                print("UP")
+    elif(posc == n - 1 and (posr > 0 and posr < n-1)):
+        if(board[posr][posc] == "d"):
+            print("CLEAN")
+        elif(board[posr-1][posc] == "d"):
+            print("UP")
+        elif(board[posr+1][posc] == "d"):
+            print("DOWN")
+        elif(board[posr][posc-1] == "d"):
+            print("LEFT")
+        else:
+            print("UP")
                 
     else: 
         if(board[posr][posc] == "d"):
