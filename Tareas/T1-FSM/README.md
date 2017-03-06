@@ -12,7 +12,7 @@ En este branch, se encuentra la implementación de la máquina de estados que re
 
 La máquina de estados se implementó en su totalidad. En la siguiente imagen se observa el resultado de la máquina implementada:
 
-![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Tareas/Tarea1-FSM/ResultadoImplementacionSimulacionComportamiento.PNG "Logo Title Text 1")
+![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Tareas/T1-FSM/ResultadoImplementacionSimulacionComportamiento.PNG "Logo Title Text 1")
 
 ##Referencias
 
