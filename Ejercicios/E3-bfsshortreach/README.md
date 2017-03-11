@@ -17,6 +17,10 @@ En la siguiente imagen se observa el resultado del challenge bfsshortreach:
 
 ![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/bfsshortreach.PNG "Breadth First Search: Shortest Reach Result")
 
+En la siguiente imagen se observa el resultado de los test cases aprobados:
+
+![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/approved_testcases.PNG "Breadth First Search: Shortest Reach Result")
+
 
 ##Referencias
 
