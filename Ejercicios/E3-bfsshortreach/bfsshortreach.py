@@ -64,13 +64,16 @@ def bfsshortreach():
     first_line = True #This is used to know the number of nodes and edges
     constraint_error = False #This is used to know where to exit the algorithm
     number_of_nodes = 0
+    numbers = []
     s_vertex = 0
     if(number_of_queries >= 1 and number_of_queries <= 10):
         ###This cycle creates the graphs
         while(number_of_queries > 0):
             entry = input().strip()
-            if(len(entry) == 1):
-                initial_vertex = int(entry[0]) #Get the s vertex
+            numbers = [int(s) for s in entry.split() if s.isdigit()]
+            if(len(numbers) == 1):
+                numbers = [int(s) for s in entry.split() if s.isdigit()]
+                initial_vertex = int(numbers[0]) #Get the s vertex
                 s_vertex = initial_vertex
                 vertex_index = search_vertex(graphs[graph_index], initial_vertex) #Find the position on the list of the vertex
                 graphs[graph_index][vertex_index].setInitialNode() #Set that node as the initial node
@@ -82,12 +85,13 @@ def bfsshortreach():
                     constraint_error = True
                     number_of_queries = 0
             elif(first_line == True):
-                number_of_nodes = int(entry[0]) #gets the number of nodes of the graph
-                number_of_edges = int(entry[2]) #gets the number of edges
-                if(number_of_nodes < 2 or number_of_nodes > 1000):
+                numbers = [int(s) for s in entry.split() if s.isdigit()]
+                number_of_nodes = int(numbers[0]) #gets the number of nodes of the graph
+                number_of_edges = int(numbers[1]) #gets the number of edges
+                if((number_of_nodes < 2) or (number_of_nodes > 1000)):
                     constraint_error = True
                     number_of_queries = 0
-                elif(number_of_edges < 1 or number_of_edges > (number_of_nodes*(number_of_nodes - 1))/2 ):
+                elif((number_of_edges < 1) or (number_of_edges > ((number_of_nodes*(number_of_nodes - 1)))/2) ):
                     constraint_error = True
                     number_of_queries = 0
                 else:
@@ -95,8 +99,9 @@ def bfsshortreach():
                     graphs.append(list_of_vertex) #Save the graph created in the graph list
                     first_line = False
             else:
-                initial_vertex = int(entry[0]) #Get the initial vertex
-                final_vertex = int(entry[2]) #Get the neighbor vertex of the initial vertex
+                numbers = [int(s) for s in entry.split() if s.isdigit()]
+                initial_vertex = int(numbers[0]) #Get the initial vertex
+                final_vertex = int(numbers[1]) #Get the neighbor vertex of the initial vertex
 
                 if(initial_vertex < 1 or initial_vertex > number_of_nodes):
                     constraint_error = True
@@ -106,8 +111,14 @@ def bfsshortreach():
                     number_of_queries = 0
                 else:
                     vertex_index = search_vertex(graphs[graph_index],initial_vertex) #Find the position on the list of the vertex
-                    graphs[graph_index][vertex_index].updateAdjacentList(final_vertex) #Update the adjacent list of the vertex
-                    
+                    adjacent_list = graphs[graph_index][vertex_index].getAdjacentVertex()
+                    if(search_neighbor(adjacent_list, final_vertex) == False):
+                        graphs[graph_index][vertex_index].updateAdjacentList(final_vertex) #Update the adjacent list of the vertex
+
+                    vertex_index = search_vertex(graphs[graph_index],final_vertex) #Find the position on the list of the vertex
+                    adjacent_list = graphs[graph_index][vertex_index].getAdjacentVertex()
+                    if(search_neighbor(adjacent_list, final_vertex) == False):
+                        graphs[graph_index][vertex_index].updateAdjacentList(initial_vertex) #Update the adjacent list of the vertex                    
 
 
         if(constraint_error == True):
@@ -119,8 +130,6 @@ def bfsshortreach():
 
             #This function prints the graphs results
             print_bfsshortreach_results(graphs)
-            
-
 
     else:
         print("Error")
@@ -191,6 +200,19 @@ def search_vertex(graph_list, vertex):
             return i
         else:
             i = i + 1
+
+#### This function is going to go over the list of nodes and return the index of the node ####
+def search_neighbor(graph_list, vertex):
+    i = 0
+    result = False
+    while(i < len(graph_list)):
+        node = graph_list[i]
+        if(node == vertex):
+            result = True
+            return result
+        else:
+            i = i + 1
+    return result
 
 #### This function is going to go over the list of nodes and return the index of the node and the id ####
 def search_s_vertex(graph_list):
