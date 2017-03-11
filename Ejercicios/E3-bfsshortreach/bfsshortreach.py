@@ -173,7 +173,6 @@ def print_bfsshortreach_results(graphs):
     total_of_graphs = len(graphs)
     i = 0
     j = 0
-    print("Grafo: ")
     while (i < total_of_graphs):
         if(j == len(graphs[i])):
             i = i + 1
