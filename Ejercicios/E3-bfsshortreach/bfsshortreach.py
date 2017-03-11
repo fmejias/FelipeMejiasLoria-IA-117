@@ -62,33 +62,68 @@ def bfsshortreach():
     graphs = [] #This contains all of the graphs created
     graph_index = 0 #This index is used when a new graph has to be created
     first_line = True #This is used to know the number of nodes and edges
-    
-    ###This cycle creates the graphs
-    while(number_of_queries > 0):
-        entry = input().strip()
-        if(len(entry) == 1):
-            initial_vertex = int(entry[0]) #Get the s vertex
-            vertex_index = search_vertex(graphs[graph_index], initial_vertex) #Find the position on the list of the vertex
-            graphs[graph_index][vertex_index].setInitialNode() #Set that node as the initial node
-            number_of_queries = number_of_queries - 1 #Pass to another graph
-            first_line = True 
-            graph_index = graph_index + 1 
-        elif(first_line == True):
-            number_of_nodes = int(entry[0]) #gets the number of nodes of the graph
-            list_of_vertex = create_vertex(number_of_nodes) #Here I call a function to get a list of Vertex
-            graphs.append(list_of_vertex) #Save the graph created in the graph list
-            first_line = False
-        else:
-            initial_vertex = int(entry[0]) #Get the initial vertex
-            final_vertex = int(entry[2]) #Get the neighbor vertex of the initial vertex
-            vertex_index = search_vertex(graphs[graph_index],initial_vertex) #Find the position on the list of the vertex
-            graphs[graph_index][vertex_index].updateAdjacentList(final_vertex) #Update the adjacent list of the vertex
+    constraint_error = False #This is used to know where to exit the algorithm
+    number_of_nodes = 0
+    s_vertex = 0
+    if(number_of_queries >= 1 and number_of_queries <= 10):
+        ###This cycle creates the graphs
+        while(number_of_queries > 0):
+            entry = input().strip()
+            if(len(entry) == 1):
+                initial_vertex = int(entry[0]) #Get the s vertex
+                s_vertex = initial_vertex
+                vertex_index = search_vertex(graphs[graph_index], initial_vertex) #Find the position on the list of the vertex
+                graphs[graph_index][vertex_index].setInitialNode() #Set that node as the initial node
+                number_of_queries = number_of_queries - 1 #Pass to another graph
+                first_line = True 
+                graph_index = graph_index + 1
 
-    #Call the function to do the BFS
-    BFS(graphs)
+                if(s_vertex < 1 or s_vertex > number_of_nodes):
+                    constraint_error = True
+                    number_of_queries = 0
+            elif(first_line == True):
+                number_of_nodes = int(entry[0]) #gets the number of nodes of the graph
+                number_of_edges = int(entry[2]) #gets the number of edges
+                if(number_of_nodes < 2 or number_of_nodes > 1000):
+                    constraint_error = True
+                    number_of_queries = 0
+                elif(number_of_edges < 1 or number_of_edges > (number_of_nodes*(number_of_nodes - 1))/2 ):
+                    constraint_error = True
+                    number_of_queries = 0
+                else:
+                    list_of_vertex = create_vertex(number_of_nodes) #Here I call a function to get a list of Vertex
+                    graphs.append(list_of_vertex) #Save the graph created in the graph list
+                    first_line = False
+            else:
+                initial_vertex = int(entry[0]) #Get the initial vertex
+                final_vertex = int(entry[2]) #Get the neighbor vertex of the initial vertex
 
-    #This function prints the graphs results
-    print_bfsshortreach_results(graphs)
+                if(initial_vertex < 1 or initial_vertex > number_of_nodes):
+                    constraint_error = True
+                    number_of_queries = 0
+                elif(final_vertex < 1 or final_vertex > number_of_nodes):
+                    constraint_error = True
+                    number_of_queries = 0
+                else:
+                    vertex_index = search_vertex(graphs[graph_index],initial_vertex) #Find the position on the list of the vertex
+                    graphs[graph_index][vertex_index].updateAdjacentList(final_vertex) #Update the adjacent list of the vertex
+                    
+
+
+        if(constraint_error == True):
+            print("Error")
+
+        elif (constraint_error == False):
+            #Call the function to do the BFS
+            BFS(graphs)
+
+            #This function prints the graphs results
+            print_bfsshortreach_results(graphs)
+            
+
+
+    else:
+        print("Error")
 
 
 ###This function performs the BFS algorithm###

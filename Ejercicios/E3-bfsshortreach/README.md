@@ -13,7 +13,7 @@ Acá se encuentra la implementación del desafío del Breadth First Search: Shor
 
 ##Alcances
 
-En la siguiente imagen se observa el resultado del challenge botclean:
+En la siguiente imagen se observa el resultado del challenge bfsshortreach:
 
 ![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/bfsshortreach.PNG "Breadth First Search: Shortest Reach Result")
 
