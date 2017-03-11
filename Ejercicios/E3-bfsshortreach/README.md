@@ -21,6 +21,7 @@ En la siguiente imagen se observa el resultado de los test cases aprobados:
 
 ![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/approved_testcases.PNG "Breadth First Search: Shortest Reach Result")
 
+Algunos test cases no se lograron probar debido a que no era posible probarlos en Hackerrank debido al gran tamaño de las entradas.
 
 ##Referencias
 
