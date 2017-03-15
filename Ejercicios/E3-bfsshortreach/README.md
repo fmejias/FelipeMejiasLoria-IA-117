@@ -14,7 +14,10 @@ Acá se encuentra la implementación del desafío del Breadth First Search: Shor
 
 ## Alcances
 
-![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/bfsshortreach.PNG)
+![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/bfsshortreach.PNG)
+
+![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/approved_testcases.PNG)
+
 
 ## Referencias
 
