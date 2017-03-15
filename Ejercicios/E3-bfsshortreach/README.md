@@ -14,13 +14,9 @@ Acá se encuentra la implementación del desafío del Breadth First Search: Shor
 
 ## Alcances
 
-En la siguiente imagen se observa el resultado del challenge bfsshortreach:
-
 ![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/bfsshortreach.PNG)
 
-En la siguiente imagen se observa el resultado de los test cases aprobados:
-
-![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/approved_testcases.PNG "Breadth First Search: Shortest Reach Result")
+![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E3-bfsshortreach/approved_testcases.PNG)
 
 Algunos test cases no se lograron probar debido a que no era posible probarlos en Hackerrank debido al gran tamaño de las entradas.
 
