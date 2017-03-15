@@ -1,4 +1,6 @@
-﻿# Tarea2-Challenges Hackerrank: Implementación de los dos ejercicios de la página de Hackerrank.
+﻿<snippet>
+  <content><![CDATA[
+# Tarea2-Challenges Hackerrank: Implementación de los dos ejercicios de la página de Hackerrank.
 
 Acá se encuentra la implementación del desafío de la princesa.
 
@@ -26,3 +28,7 @@ Los dos challenges se implementaron basados en las indicaciones dadas en cada ch
 ## Estudiante
 
 Felipe Alberto Mejías Loría.
+
+]]></content>
+  <tabTrigger>readme</tabTrigger>
+</snippet>
