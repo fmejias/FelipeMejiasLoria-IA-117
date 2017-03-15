@@ -4,12 +4,12 @@ Acá se encuentra la implementación del desafío de la princesa.
 
 ## Instrucciones de ejecución del programa
 
-Ejecutar el challenge: saveprincess.
-Para ejecutar este programa se debe tener una cuenta en Hackerrank.
-Se ingresa al challenge llamado saveprincess.
-Se escoge el lenguaje de programación: Python 3.
-Se ingresa el código que se encuentra en el archivo llamado saveprincess.py
-Darle click a la opción llamada Run Code.
+### Ejecutar el challenge: saveprincess.
+### Para ejecutar este programa se debe tener una cuenta en Hackerrank.
+### Se ingresa al challenge llamado saveprincess.
+### Se escoge el lenguaje de programación: Python 3.
+### Se ingresa el código que se encuentra en el archivo llamado saveprincess.py
+### Darle click a la opción llamada Run Code.
 
 
 ## Alcances
