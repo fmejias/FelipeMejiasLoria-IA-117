@@ -1,5 +1,4 @@
-﻿
-## Tarea2-Challenges Hackerrank: Implementación de los dos ejercicios de la página de Hackerrank.
+﻿## Tarea2-Challenges Hackerrank: Implementación de los dos ejercicios de la página de Hackerrank.
 
 Acá se encuentra la implementación del desafío de la princesa.
 
