@@ -16,7 +16,7 @@ Acá se encuentra la implementación del desafío de la princesa.
 ## Alcances
 
 ![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/tree/master/Ejercicios/E1-saveprincess/saveprincess.png)
-<img src="https://github.com/fmejias/FelipeMejiasLoria-IA-117/tree/master/Ejercicios/E1-saveprincess/saveprincess.png" title="Github Logo">
+<img src="https://github.com/fmejias/FelipeMejiasLoria-IA-117/tree/master/Ejercicios/E1-saveprincess/saveprincess.PNG" title="Github Logo">
 
 ## Referencias
 
