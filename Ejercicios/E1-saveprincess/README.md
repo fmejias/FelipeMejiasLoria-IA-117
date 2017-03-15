@@ -17,7 +17,7 @@ Acá se encuentra la implementación del desafío de la princesa.
 
 Ambos challenges se implementaron en su totalidad. En la siguiente imagen se observa el resultado del challenge saveprincess:
 
-![alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/tree/master/Ejercicios/E1-saveprincess/saveprincess.PNG "Save Princess Result")
+![Alt text] (https://github.com/fmejias/FelipeMejiasLoria-IA-117/tree/master/Ejercicios/E1-saveprincess/saveprincess.PNG?raw=true "Save Princess Result")
 
 ## Referencias
 
