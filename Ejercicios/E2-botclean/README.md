@@ -3,7 +3,7 @@
 
 Acá se encuentra la implementación del desafío del botclean.
 
-##Instrucciones de ejecución del programa
+## Instrucciones de ejecución del programa
 
 1. Ejecutar el challenge: botclean.
 2. Para ejecutar este programa se debe tener una cuenta en Hackerrank.
@@ -12,12 +12,12 @@ Acá se encuentra la implementación del desafío del botclean.
 5. Se ingresa el código que se encuentra en el archivo llamado botclean.py
 6. Darle click a la opción llamada Run Code.
 
-##Alcances
+## Alcances
 
 ![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E2-botclean/botclean.PNG)
 
 
-##Referencias
+## Referencias
 
 Los dos challenges se implementaron basados en las indicaciones dadas en cada challenge. 
 
