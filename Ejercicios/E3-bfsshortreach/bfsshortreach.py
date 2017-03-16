@@ -9,6 +9,7 @@ class Vertex:
     # self.adjacent_vertex_list = contains all of the adjacent vertex of the vertex
     # self.distance_from_s = this is the distance from the node s to that vertex
     # self.initial_node = indicates if it is the initial node
+    # self.father = indicates if the node has a father
     ###
     def __init__(self,vertex_id):
         self.vertex_id = vertex_id
@@ -16,6 +17,8 @@ class Vertex:
         self.adjacent_vertex_list = []
         self.distance_from_s = -1
         self.initial_node = False
+        self.father = False
+        self.distance = 0
 
     #This method return the vertex id
     def getVertexId(self):
@@ -37,13 +40,29 @@ class Vertex:
     def getDistanceFromS(self):
         return self.distance_from_s
 
+    #This method returns the distance
+    def getDistance(self):
+        return self.distance
+
+    #This method returns the distance 
+    def setDistance(self,distance):
+        self.distance =  distance
+
     #This method update the distance of the search
-    def updateDistance(self,distance):
-        self.distance_from_s = distance
+    def updateDistance(self):
+        self.distance_from_s = self.distance * 6
 
     #This method set the vertex as visited
     def setVisit(self):
         self.visited = True
+
+    #This method set father = True, to indicates that the node has a father
+    def setFather(self):
+        self.father = True
+
+    #This method indicates if the node has father
+    def hasFather(self):
+        return self.father
 
     #This method set the initial node 
     def setInitialNode(self):
@@ -52,6 +71,7 @@ class Vertex:
     #This method updates the adjacent vertex of the vertex, this method receives an string, not an object Vertex
     def updateAdjacentList(self, vertex):
         self.adjacent_vertex_list.append(vertex)
+
 
 
 
@@ -111,13 +131,14 @@ def bfsshortreach():
                     number_of_queries = 0
                 else:
                     vertex_index = search_vertex(graphs[graph_index],initial_vertex) #Find the position on the list of the vertex
-                    adjacent_list = graphs[graph_index][vertex_index].getAdjacentVertex()
+                    adjacent_list = graphs[graph_index][vertex_index].getAdjacentVertex() #Get the list of adjacent vertex of the node initial vertex
                     if(search_neighbor(adjacent_list, final_vertex) == False):
                         graphs[graph_index][vertex_index].updateAdjacentList(final_vertex) #Update the adjacent list of the vertex
 
                     vertex_index = search_vertex(graphs[graph_index],final_vertex) #Find the position on the list of the vertex
-                    adjacent_list = graphs[graph_index][vertex_index].getAdjacentVertex()
-                    if(search_neighbor(adjacent_list, final_vertex) == False):
+                    graphs[graph_index][vertex_index].setFather() #Set father = true
+                    adjacent_list = graphs[graph_index][vertex_index].getAdjacentVertex() #Get the list of adjacent vertex of the node final vertex
+                    if(search_neighbor(adjacent_list, initial_vertex) == False):
                         graphs[graph_index][vertex_index].updateAdjacentList(initial_vertex) #Update the adjacent list of the vertex                    
 
 
@@ -130,6 +151,9 @@ def bfsshortreach():
 
             #This function prints the graphs results
             print_bfsshortreach_results(graphs)
+
+            #This function prints the graphs
+            print_graphs(graphs)
 
     else:
         print("Error")
@@ -145,6 +169,8 @@ def BFS(graphs):
     s_vertex_index = search_s_vertex(graphs[graph_index]) #Find the index and the id of the s vertex
     graphs[graph_index][s_vertex_index].setVisit() #Set the S vertex as visited
     q.put(graphs[graph_index][s_vertex_index]) #Enqueue the the S vertex
+
+    hasFather = True #This variable is use to indicate if the node has a father
     
     ###This cycle realize the search
     while(number_of_graphs > 0):
@@ -166,7 +192,8 @@ def BFS(graphs):
                 adjacent_index = search_vertex(graphs[graph_index],adjacent_list[i])
                 if(graphs[graph_index][adjacent_index].isVisited() == False):
                     graphs[graph_index][adjacent_index].setVisit() #This mark the node as visited
-                    graphs[graph_index][adjacent_index].updateDistance(distance) #This update the distance of the vertex
+                    graphs[graph_index][adjacent_index].setDistance(vertex.getDistance() + 1)
+                    graphs[graph_index][adjacent_index].updateDistance() #This update the distance of the vertex
                     q.put(graphs[graph_index][adjacent_index]) #This enqueue the neighbor node
                     
                     i = i +1
@@ -209,7 +236,8 @@ def search_neighbor(graph_list, vertex):
         node = graph_list[i]
         if(node == vertex):
             result = True
-            return result
+            i = i + 1
+           # return result
         else:
             i = i + 1
     return result
@@ -260,7 +288,8 @@ def print_graphs(graphs):
         else:
             vertex = graphs[i][j]
             print("El vertice es: ", vertex.getVertexId())
-            print("La distancia del nodo s hasta aquí es: ", vertex.getDistanceFromS())
-            print("La lista de vertices vecinos es: ", vertex.getAdjacentVertex())
+          #  print("Tiene nodo padre: ", vertex.hasFather())
+            print("La distancia del nodo s hasta aquí es: ", vertex.getDistance())
+       #     print("La lista de vertices vecinos es: ", vertex.getAdjacentVertex())
             j = j + 1
     
