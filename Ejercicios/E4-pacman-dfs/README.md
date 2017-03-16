@@ -16,8 +16,6 @@ Acá se encuentra la implementación del desafío del PacMan - DFS.
 
 ![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E4-pacman-dfs/pacman-dfs.PNG)
 
-![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E4-pacman-dfs/approved_testcases.PNG)
-
 
 ## Referencias
 

@@ -1,6 +1,3 @@
-###This import is necessary to get a Python queue #####
-import queue
-
 ####This class represent a vertex of the graph ####
 class Vertex:
     ###
@@ -144,8 +141,7 @@ def pacman_dfs():
 
 
 ###This function performs the BFS algorithm###
-def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
-    
+def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):   
     graph_index = 0 #This index is used to go over the graph
     stack = [] #This stack is use in the algorithm
     distance = 0 #This is the distance of the edges
@@ -154,13 +150,13 @@ def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
     stack.append(graph[pacman_initial_vertex_index]) #Stack the initial pacman vertex
     total_vertex_neighbors = 0
     visited_vertex_list = []
-    pacman_found_food = False
+    
     while(stack != []):
         stack_vertex = stack.pop()
         vertex_neighbors_list = graph[stack_vertex.getVertexId()].getAdjacentVertex()
         total_vertex_neighbors = len(vertex_neighbors_list)
         i = 0
-        visited_vertex_list.append(stack_vertex.getVertexId())
+        visited_vertex_list.append(stack_vertex)
         while((i < total_vertex_neighbors)):
             if(total_vertex_neighbors == 4):
                 neighbor = vertex_neighbors_list[i]
@@ -168,14 +164,16 @@ def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
                     i = i + 1
                 elif(graph[neighbor].getVertexValue() == "."):
                     i = i + 1
-                    print("Encontro la comida")
-                    print(visited_vertex_list + [graph[neighbor].getVertexId()])
+                    travel = visited_vertex_list + [graph[neighbor]]
+                    print_dfs(travel)
+                    print(len(travel) - 1)
+                    print_dfs(travel)
                 else:
                     if(graph[neighbor].isVisited() == False):
                         graph[neighbor].setVisit()
                         stack.append(graph[neighbor])
                         i = i + 1
-                        
+
                     else:
                         i = i + 1
             elif(total_vertex_neighbors == 3):
@@ -184,8 +182,10 @@ def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
                     i = i + 1
                 elif(graph[neighbor].getVertexValue() == "."):
                     i = i + 1
-                    print("Encontro la comida")
-                    print(visited_vertex_list + [graph[neighbor].getVertexId()])
+                    travel = visited_vertex_list + [graph[neighbor]]
+                    print_dfs(travel)
+                    print(len(travel) - 1)
+                    print_dfs(travel)
                 else:
                     if(graph[neighbor].isVisited() == False):
                         graph[neighbor].setVisit()
@@ -199,8 +199,10 @@ def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
                     i = i + 1
                 elif(graph[neighbor].getVertexValue() == "."):
                     i = i + 1
-                    print("Encontro la comida")
-                    print(visited_vertex_list + [graph[neighbor].getVertexId()])
+                    travel = visited_vertex_list + [graph[neighbor]]
+                    print_dfs(travel)
+                    print(len(travel) - 1)
+                    print_dfs(travel)
                 else:
                     if(graph[neighbor].isVisited() == False):
                         graph[neighbor].setVisit()
@@ -209,10 +211,6 @@ def DFS(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
                     else:
                         i = i + 1
 
-       
-            
-   # print(visited_vertex_list)
-    
 
 #### This functions is goint to return a list of vertexs #####
 def create_vertex(rows, columns):
@@ -308,6 +306,15 @@ def search_vertex(graph_list, vertex_x, vertex_y):
         else:
             i = i + 1
 
+
+### This function prints all the travel of PacMan ###
+def print_dfs(travel_list):
+    i = 0
+    print(len(travel_list))
+    while(i < len(travel_list)):
+        print(travel_list[i].getVertexX(), end=" ")
+        print(travel_list[i].getVertexY())
+        i = i + 1
             
 ### This function prints the graph
 def print_graph(graph):
