@@ -14,7 +14,7 @@ Acá se encuentra la implementación del desafío del PacMan - A*.
 
 ## Alcances
 
-![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E4-pacman-dfs/pacman-dfs.PNG)
+![alt text](https://github.com/fmejias/FelipeMejiasLoria-IA-117/blob/master/Ejercicios/E5-pacman-astar/pacman-astar.PNG)
 
 
 ## Referencias

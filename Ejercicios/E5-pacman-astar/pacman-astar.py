@@ -98,7 +98,6 @@ class Vertex:
     def setVisit(self):
         self.visited = True
 
-
     #This method updates the adjacent vertex of the vertex, this method receives an string, not an object Vertex
     def updateAdjacentList(self, vertex):
         self.adjacent_vertex_list.append(vertex)
@@ -135,36 +134,29 @@ def pacman_astar():
     graph = list_of_vertex #Save the graph created in the graph list
     graph_index = 0 #Index to go over the nodes of the graph
     input_index = 0 #Index to go over the input
-
-
-    ## Open the file with read only permit
-    f = open('case1.txt')
     
     while(number_of_nodes < rows * columns): #Go over the grid and assign the value and the type of the vertex
-        line = f.readline().strip()
+        entry = input().strip()
         input_index = 0 #Index to go over the input
-        while(input_index < len(line)):
-            if(line[input_index] == "%"):
+        while(input_index < len(entry)):
+            if(entry[input_index] == "%"):
                 graph[graph_index].setVertexType("Wall")
                 graph[graph_index].setVertexValue("%")
                 graph_index = graph_index + 1
                 input_index = input_index + 1
                 number_of_nodes = number_of_nodes + 1
-                
-            elif(line[input_index] == "-"):
+            elif(entry[input_index] == "-"):
                 graph[graph_index].setVertexType("Space")
                 graph[graph_index].setVertexValue("-")
                 graph_index = graph_index + 1
                 input_index = input_index + 1
                 number_of_nodes = number_of_nodes + 1
-                
-            elif(line[input_index] == "P"):
+            elif(entry[input_index] == "P"):
                 graph[graph_index].setVertexType("PacMan")
                 graph[graph_index].setVertexValue("P")
                 graph_index = graph_index + 1
                 input_index = input_index + 1
                 number_of_nodes = number_of_nodes + 1
-                
             else:
                 graph[graph_index].setVertexType("Food")
                 graph[graph_index].setVertexValue(".")
@@ -172,7 +164,6 @@ def pacman_astar():
                 input_index = input_index + 1
                 number_of_nodes = number_of_nodes + 1
                 
-    f.close()
     
     ###Now the graph has been created###
     astar(graph, pacman_initial_x, pacman_initial_y, food_x, food_y, rows, columns)
@@ -242,7 +233,6 @@ def astar(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
                 graph[neighbor].setFather(open_list_element.getVertexId()) #Set father
                 assign_father = True
                 open_list.append(graph[neighbor])
-          #      print("Entro aqui assign father = false")
             elif (assign_father == True):
                 i = i + 1 #Update the index
                 graph[neighbor].setD(open_list_element.getD() + 1)
@@ -251,17 +241,10 @@ def astar(graph, pacman_x, pacman_y, food_x, food_y, rows, columns):
                 graph[neighbor].setCost(open_list_element.getD() + 1 + h)
                 graph[neighbor].setFather(open_list_element.getVertexId()) #Set father
                 open_list.append(graph[neighbor])
-           #     print("Entro aqui assign father = true")
-            
+         
 
-        #Step 4: Sort the open_list in an ascendent form
-    #    open_list = review_open_list(open_list)
-        
-    
-  #  print_astar(close_list) #Go and print the travel of A* algorithm
     food_vertex_index = search_vertex(graph,food_x, food_y) #Find the index of the initial pacman
     print_astar(food_vertex_index, graph) #Go and print the travel of A* algorithm
-  #  print_graph(graph)
 
 #### This function sort the open_list in an ascendent form ####
 def review_open_list(open_list):
@@ -399,7 +382,6 @@ def print_astar(food_index, graph):
     while(node.getVertexValue() != "P" ):
         if(node.getFather != 0):
             travel = str(node.getVertexX()) + " " + str(node.getVertexY())
-         #   print(travel)
             travel_list.insert(0,travel)
             father = node.getFather()
             node = graph[father]
