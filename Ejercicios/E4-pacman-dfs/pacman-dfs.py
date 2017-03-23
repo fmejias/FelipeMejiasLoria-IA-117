@@ -299,9 +299,11 @@ def create_vertex(rows, columns):
 #### This function is going to go over the list of nodes and return the index of the node ####
 def search_vertex(graph_list, vertex_x, vertex_y):
     i = 0
+    find_vertex = False
     while(i < len(graph_list)):
         node = graph_list[i]
         if(node.getVertexX() == vertex_x and node.getVertexY() == vertex_y):
+            find_vertex = True
             return i
         else:
             i = i + 1
