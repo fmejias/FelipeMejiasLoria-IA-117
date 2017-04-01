@@ -130,13 +130,13 @@ def n_puzzle():
     empty_cell_index = 0
 
     ###Txt FILE
-    f = open('n-puzzle.txt', "r")
+ #   f = open('n-puzzle.txt', "r")
     ## The variable "lines" is a list containing all lines
-    lines = f.readlines()
+ #   lines = f.readlines()
 
     #Go over the grid and assign the value and the type of the vertex, and also creates the initial grid
-    while(number_of_nodes < len(lines)): 
-        entry = lines[number_of_nodes].strip()
+    while(number_of_nodes < grid_rows*grid_columns): 
+        entry = input().strip()
         if(entry == "0"):
             initial_graph[graph_index].setVertexType("empty_cell")
             initial_graph[graph_index].setVertexValue("0")
@@ -149,8 +149,7 @@ def n_puzzle():
             graph_index = graph_index + 1
             number_of_nodes = number_of_nodes + 1
 
-    #Close the txt file
-    f.close()
+  #  f.close()
     
     ######Variables need it to convert the final grid in a graph##########
     final_graph = [] #This contains the final graph created
@@ -200,7 +199,7 @@ def astar(initial_graph, resolved_graph, rows, columns):
     resolved = False #This variable indicates when the puzzle is solved
     empty_cell_number_of_movements = 0 #Count the number of movements
 
-
+    path_list = []
     
     #Beginning of the algorithm
     while(resolved == False):
@@ -212,16 +211,18 @@ def astar(initial_graph, resolved_graph, rows, columns):
         graph = rearrange_puzzle(graph, graph[empty_cell_index].getVertexId(), element_neighbors_list[neighbor_choose][0])
         graph = update_graph_neighbors(graph,rows,columns)
         empty_cell_number_of_movements = empty_cell_number_of_movements + 1
-        print(element_neighbors_list[neighbor_choose][1])
+     #   print(element_neighbors_list[neighbor_choose][1])
+        path_list.append(element_neighbors_list[neighbor_choose][1])
         
         #This check if the puzzle is solved
         if(graph[0].getVertexValue() == "0" and graph[1].getVertexValue() == "1" and graph[2].getVertexValue() == "2"
            and graph[3].getVertexValue() == "3" and graph[4].getVertexValue() == "4" and graph[5].getVertexValue() == "5"
            and graph[6].getVertexValue() == "6" and graph[7].getVertexValue() == "7" and graph[8].getVertexValue() == "8"):
-            print_puzzle(graph,rows,columns)
+        #    print_puzzle(graph,rows,columns)
             resolved = True
-            print()
-            print("La cantidad de movimientos realizados fue: ", empty_cell_number_of_movements)
+            #print()
+            print(empty_cell_number_of_movements)
+            print_list(path_list)
 
 
 #### This function sort the open_list in an ascendent form ####
@@ -491,6 +492,12 @@ def print_graph(graph):
         print("Su valor es: ", vertex.getVertexValue())
         print("La lista de vertices vecinos es: ", vertex.getAdjacentVertex())
         j = j + 1
+
+def print_list(lista):
+    i = 0
+    while(i < len(lista)):
+        print(lista[i])
+        i = i + 1
 
 ### This function prints the puzzle
 def print_puzzle(graph,rows,columns):
