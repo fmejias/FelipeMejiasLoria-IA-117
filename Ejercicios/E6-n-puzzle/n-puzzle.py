@@ -74,21 +74,15 @@ class Puzzle_State:
     #This method updates the adjacent vertex of the vertex, this method receives an string, not an object Vertex
     def updateAdjacentList(self, vertex,path_list):
         i = 0
-        already_there = True
-        while(i < len(path_list)):
-   #         print_puzzle(path_list[i], 3,3)
-   #         print_puzzle(vertex, 3,3)
-            if(puzzle_resolved(path_list[i], vertex) == True):
+        already_there = False
+        while(i < len(self.adjacent_state_list)):
+            if(puzzle_resolved(self.adjacent_state_list[i], vertex) == True):
                 already_there = True
-       #         print("Son iguales")
                 break
-                
             else:
                 i = i + 1
                 already_there = False
-              #  self.adjacent_state_list.append(vertex)
         if(already_there == False):
-       #     print("No son iguales")
             self.adjacent_state_list.append(vertex)
 
     #This method updates the adjacent vertex of the vertex, this method receives an string, not an object Vertex
@@ -357,7 +351,7 @@ def astar2(initial_graph, resolved_graph, rows, columns):
     open_list.append(initial_state) #Add the initial puzzle state
 
     path_list.append(initial_graph)
-
+    d = 1
     #Beginning of the algorithm
     while(open_list != []):
         
@@ -390,7 +384,8 @@ def astar2(initial_graph, resolved_graph, rows, columns):
             
          #   print_puzzle(rearrange_graph,rows,columns)
             n = n + 1
-
+   #     puzzle_states_list[open_list_element_index].setD(d) #Set the first open_list vertex as visited
+        d = d + 1
     #    print("El open_list_index es: ", open_list_element_index)    
     #    print_puzzle(open_list_element.getPuzzleState(),rows,columns)
         
@@ -399,14 +394,18 @@ def astar2(initial_graph, resolved_graph, rows, columns):
         total_open_list_element_neighbors = len(open_list_element_neighbors_list) #Get the number of neighbors
         i = 0 #Index to go over the list
         r = 0
+
+   #     print("El open list element es: ")
    #     print_puzzle(open_list_element.getPuzzleState(),rows,columns)
         
-    #    print("El largo de vecinos es: ", len(open_list_element_neighbors_list))
+   #     print("El largo de vecinos del open element list son: ", len(open_list_element_neighbors_list))
         while(r < total_open_list_element_neighbors):
             k = open_list_element_neighbors_list[r]
-            if(k[0].getVertexValue() == "0" and k[1].getVertexValue() == "1" and k[2].getVertexValue() == "2"): #Finish the algorithm A*
+            if(k[0].getVertexValue() == "1" and k[1].getVertexValue() == "2" and k[2].getVertexValue() == "3" and
+               k[3].getVertexValue() == "8" and k[4].getVertexValue() == "0" and k[5].getVertexValue() == "4"): #Finish the algorithm A*
                 print("Resolvio el puzzle")
                 print_puzzle(open_list_element_neighbors_list[r],rows,columns)
+            
             r = r + 1
         
             
@@ -416,18 +415,20 @@ def astar2(initial_graph, resolved_graph, rows, columns):
             state = Puzzle_State(neighbor) #Create a state
             puzzle_states_list = check_node(puzzle_states_list, state)
             neighbor_index = review_open_list(state, puzzle_states_list) #Get the puzzle state index
-     #       print_puzzle(neighbor,rows,columns)
-       #     if(puzzle_resolved(neighbor,resolved_graph) == True): #Finish the algorithm A*
-       #         print("Resolvio el puzzle")
-       #         break
-            
-            if(neighbor[0].getVertexValue() == "0" and neighbor[1].getVertexValue() == "1" and neighbor[2].getVertexValue() == "2"): #Finish the algorithm A*
+       #     print("El vecino es: ")
+       #     print_puzzle(neighbor,rows,columns)
+            if(puzzle_resolved(neighbor,resolved_graph) == True): #Finish the algorithm A*
                 print("Resolvio el puzzle")
                 open_list = []
                 break
+            
+      #      if(neighbor[0].getVertexValue() == "0" and neighbor[1].getVertexValue() == "1" and neighbor[2].getVertexValue() == "2"): #Finish the algorithm A*
+      #          print("Resolvio el puzzle")
+      #          open_list = []
+      #          break
             elif(puzzle_states_list[neighbor_index].isVisited() == True): #If the cell is already visited, we just ignore it
                 i = i + 1 #Update the index
-                print("Ya fue visitado")
+     #           print("Ya fue visitado")
      #       elif(open_list_element.getD() + 1 > puzzle_states_list[neighbor_index].getD()): #If the new D is better than the old one
      #           i = i + 1 #Update the index
      #           puzzle_states_list[neighbor_index].setD(open_list_element.getD() + 1)
@@ -438,10 +439,12 @@ def astar2(initial_graph, resolved_graph, rows, columns):
                 
             else:
                 i = i + 1 #Update the index
-                puzzle_states_list[neighbor_index].setD(open_list_element.getD() + 1)
+                puzzle_states_list[neighbor_index].setD(d)
                 h = heuristic(resolved_graph, neighbor)
+                
                 puzzle_states_list[neighbor_index].setH(h)
-                puzzle_states_list[neighbor_index].setCost(open_list_element.getD() + 1 + h)
+                puzzle_states_list[neighbor_index].setCost(puzzle_states_list[neighbor_index].getD() + h)
+       #         print("Su costo es: ", puzzle_states_list[neighbor_index].getCost())
                 open_list.append(puzzle_states_list[neighbor_index]) #Appende the state
 
   #      print("El largo de open list sin ordenar es: ", len(open_list))
@@ -454,6 +457,7 @@ def astar2(initial_graph, resolved_graph, rows, columns):
   #          r = r + 1
             
         open_list = order_open_list(open_list) #Order the open list in an ascendent way
+        d = d + 1
   #      r = 0
   #      print("El largo de open list ordenada es: ", len(open_list))
   #      while(r < len(open_list)):
@@ -537,19 +541,8 @@ def heuristic(graph_resolved, graph_unresolved):
         y1 = node_resolved.getVertexY()
         x2 = node_unresolved.getVertexX()
         y2 = node_unresolved.getVertexY()
-        while(y1 > y2):
-            y2 = y2 + 1
-            h = h +1
-        while(y2 > y1):
-            y1 = y1 + 1
-            h = h +1
-        while(x1 < x2):
-            x1 = x1 + 1
-            h = h +1
-        while(x2 < x1):
-            x2 = x2 + 1
-            h = h +1
-
+        if((x1 != x2)):
+            h = h + 1
         i = i + 1
     return h
         
