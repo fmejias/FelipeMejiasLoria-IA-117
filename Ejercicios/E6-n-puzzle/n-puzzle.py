@@ -1,4 +1,99 @@
 import random
+import copy
+
+####This class represent a state of the puzzle ####
+class Puzzle_State:
+    ###
+    # self.vertex_id = contains the label of the vertex
+    # self.visited = indicates if the node has been visited
+    # self.adjacent_vertex_list = contains all of the adjacent vertex of the vertex
+    ###
+    def __init__(self,puzzle):
+        self.state_id = 0
+        self.visited = False
+        self.puzzleState = puzzle
+        self.adjacent_state_list = []
+        self.cost = 0
+        self.d = 0
+        self.h = 0
+        self.father = 0
+
+
+    #This method return the cost of the vertex
+    def getPuzzleState(self):
+        return self.puzzleState
+
+    #This method set the cost of the Vertex
+    def setPuzzleState(self, puzzle):
+        self.puzzleState = puzzle
+    
+    #This method return the cost of the vertex
+    def getCost(self):
+        return self.cost
+
+    #This method set the cost of the Vertex
+    def setCost(self, cost):
+        self.cost = cost
+
+    #This method return the distance of the vertex
+    def getD(self):
+        return self.d
+
+    #This method set the distance of the Vertex
+    def setD(self, distance):
+        self.d = self.d + distance
+
+    #This method return the heuristic of the vertex
+    def getH(self):
+        return self.h
+
+    #This method set the heuristic of the Vertex
+    def setH(self, h):
+        self.h = h
+
+    #This method return the vertex id
+    def getStateId(self):
+        return self.state_id
+
+    #This method return the vertex id
+    def setStateId(self,state_id):
+        self.state_id = state_id
+
+    #This method indicates if the vertex has been visited
+    def isVisited(self):
+        return self.visited
+
+    #This method returns the list of the adjacent vertex
+    def getAdjacentList(self):
+        return self.adjacent_state_list
+    
+    #This method set the vertex as visited
+    def setVisit(self):
+        self.visited = True
+
+    #This method updates the adjacent vertex of the vertex, this method receives an string, not an object Vertex
+    def updateAdjacentList(self, vertex,path_list):
+        i = 0
+        already_there = True
+        while(i < len(path_list)):
+   #         print_puzzle(path_list[i], 3,3)
+   #         print_puzzle(vertex, 3,3)
+            if(puzzle_resolved(path_list[i], vertex) == True):
+                already_there = True
+       #         print("Son iguales")
+                break
+                
+            else:
+                i = i + 1
+                already_there = False
+              #  self.adjacent_state_list.append(vertex)
+        if(already_there == False):
+       #     print("No son iguales")
+            self.adjacent_state_list.append(vertex)
+
+    #This method updates the adjacent vertex of the vertex, this method receives an string, not an object Vertex
+    def setAdjacentList(self, vertex):
+        self.adjacent_state_list = vertex
 
 ####This class represent a vertex of the graph ####
 class Vertex:
@@ -130,13 +225,13 @@ def n_puzzle():
     empty_cell_index = 0
 
     ###Txt FILE
- #   f = open('n-puzzle.txt', "r")
+    f = open('n-puzzle.txt', "r")
     ## The variable "lines" is a list containing all lines
- #   lines = f.readlines()
+    lines = f.readlines()
 
     #Go over the grid and assign the value and the type of the vertex, and also creates the initial grid
-    while(number_of_nodes < grid_rows*grid_columns): 
-        entry = input().strip()
+    while(number_of_nodes < len(lines)): 
+        entry = lines[number_of_nodes].strip()
         if(entry == "0"):
             initial_graph[graph_index].setVertexType("empty_cell")
             initial_graph[graph_index].setVertexValue("0")
@@ -149,7 +244,7 @@ def n_puzzle():
             graph_index = graph_index + 1
             number_of_nodes = number_of_nodes + 1
 
-  #  f.close()
+    f.close()
     
     ######Variables need it to convert the final grid in a graph##########
     final_graph = [] #This contains the final graph created
@@ -167,14 +262,16 @@ def n_puzzle():
             number_of_nodes = number_of_nodes + 1
         else:
             final_graph[graph_index].setVertexType("tile")
-            final_graph[graph_index].setVertexValue(node_value)
+            final_graph[graph_index].setVertexValue(str(node_value))
             graph_index = graph_index + 1
             number_of_nodes = number_of_nodes + 1
             node_value = node_value + 1
 
     ###Now the graph has been created###
-    astar(initial_graph, final_graph,  grid_rows, grid_columns)
+    astar2(initial_graph, final_graph,  grid_rows, grid_columns)
 
+   #rearrange_graph = rearrange_puzzle(rearrange_graph, rearrange_graph[empty_cell_index].getVertexId(), rearrange_graph[open_list_element_index].getVertexId())
+   #rearrange_graph = update_graph_neighbors(rearrange_graph,rows,columns)
     
 ###This function performs the A* algorithm###
 def astar(initial_graph, resolved_graph, rows, columns):
@@ -218,15 +315,247 @@ def astar(initial_graph, resolved_graph, rows, columns):
         if(graph[0].getVertexValue() == "0" and graph[1].getVertexValue() == "1" and graph[2].getVertexValue() == "2"
            and graph[3].getVertexValue() == "3" and graph[4].getVertexValue() == "4" and graph[5].getVertexValue() == "5"
            and graph[6].getVertexValue() == "6" and graph[7].getVertexValue() == "7" and graph[8].getVertexValue() == "8"):
-        #    print_puzzle(graph,rows,columns)
+            print_puzzle(graph,rows,columns)
             resolved = True
             #print()
-            print(empty_cell_number_of_movements)
-            print_list(path_list)
+          #  print(empty_cell_number_of_movements)
+          #  print_list(path_list)
 
+
+
+###This function performs the A* algorithm###
+def astar2(initial_graph, resolved_graph, rows, columns):
+
+    ###Array with all of the possible states###
+    puzzle_states_list = []
+
+    #####Initial State of the Puzzle #####
+    initial_state = Puzzle_State(initial_graph)
+    puzzle_states_list.append(initial_state)
+    
+    
+    graph_index = 0 #This index is used to go over the graph
+    stack = [] #This stack is use in the algorithm
+    distance = 0 #This is the distance of the edges
+
+    food_cost = 0 #This is the cost if the neighbor is the food
+    wall_space_cost = 1 #This is the cost if the neighbor is anything else
+    
+    open_list = [] #This list is use to introduce nodes that are going to be evaluated
+    close_list = [] #This list is use to introduce nodes that were evaluated
+
+    find_food = False #This variable is use to finish the algorithm
+    assign_father = False #This variable is use to assign a father to the adjacent nodes
+    
+    resolved = False #This variable indicates when the puzzle is solved
+    empty_cell_number_of_movements = 0 #Count the number of movements
+
+    path_list = []
+   # empty_cell_index = search_empty_cell(graph) #Get the index of the empty cell
+
+    ##Step 0: Add the initial_state to the open list
+    open_list.append(initial_state) #Add the initial puzzle state
+
+    path_list.append(initial_graph)
+
+    #Beginning of the algorithm
+    while(open_list != []):
+        
+        #Step 1: Get the first element of the open list
+        open_list_element = open_list[0]
+        open_list_element_index = review_open_list(open_list_element, puzzle_states_list)
+
+        #Step 2: Set the open_list_element as visited and get out of the open list
+        close_list.append(open_list_element)
+
+  #      print("La cantidad de elementos en la lista es: ", len(open_list))
+        
+        puzzle_states_list[open_list_element_index].setVisit() #Set the first open_list vertex as visited
+        open_list.pop(0) #Delete the first element of the list
+
+        #Step 3: Generate child nodes for the open list element
+        empty_cell_index = search_empty_cell(open_list_element.getPuzzleState())
+        number_of_possible_moves = len(open_list_element.getPuzzleState()[empty_cell_index].getAdjacentVertex())
+        n = 0
+        graph = copy.deepcopy(open_list_element.getPuzzleState())
+     #   print_path_list(path_list,rows,columns)
+        while(n < number_of_possible_moves):
+            index = graph[empty_cell_index].getAdjacentVertex()[n]
+            rearrange_graph = rearrange_puzzle(graph, graph[empty_cell_index].getVertexId(),
+                                               index[0])
+            rearrange_graph = update_graph_neighbors(rearrange_graph,rows,columns)
+      #      print("Comparando")
+            puzzle_states_list[open_list_element_index].updateAdjacentList(rearrange_graph,path_list)
+            path_list.append(rearrange_graph)
+            
+         #   print_puzzle(rearrange_graph,rows,columns)
+            n = n + 1
+
+    #    print("El open_list_index es: ", open_list_element_index)    
+    #    print_puzzle(open_list_element.getPuzzleState(),rows,columns)
+        
+        #Step 4: For each neighbor ...
+        open_list_element_neighbors_list = puzzle_states_list[open_list_element_index].getAdjacentList() #Get the list of adjacent cells
+        total_open_list_element_neighbors = len(open_list_element_neighbors_list) #Get the number of neighbors
+        i = 0 #Index to go over the list
+        r = 0
+   #     print_puzzle(open_list_element.getPuzzleState(),rows,columns)
+        
+    #    print("El largo de vecinos es: ", len(open_list_element_neighbors_list))
+        while(r < total_open_list_element_neighbors):
+            k = open_list_element_neighbors_list[r]
+            if(k[0].getVertexValue() == "0" and k[1].getVertexValue() == "1" and k[2].getVertexValue() == "2"): #Finish the algorithm A*
+                print("Resolvio el puzzle")
+                print_puzzle(open_list_element_neighbors_list[r],rows,columns)
+            r = r + 1
+        
+            
+        #Step 5: For each neighbor
+        while((i < total_open_list_element_neighbors)):
+            neighbor = open_list_element_neighbors_list[i] #Get a state of the puzzle
+            state = Puzzle_State(neighbor) #Create a state
+            puzzle_states_list = check_node(puzzle_states_list, state)
+            neighbor_index = review_open_list(state, puzzle_states_list) #Get the puzzle state index
+     #       print_puzzle(neighbor,rows,columns)
+       #     if(puzzle_resolved(neighbor,resolved_graph) == True): #Finish the algorithm A*
+       #         print("Resolvio el puzzle")
+       #         break
+            
+            if(neighbor[0].getVertexValue() == "0" and neighbor[1].getVertexValue() == "1" and neighbor[2].getVertexValue() == "2"): #Finish the algorithm A*
+                print("Resolvio el puzzle")
+                open_list = []
+                break
+            elif(puzzle_states_list[neighbor_index].isVisited() == True): #If the cell is already visited, we just ignore it
+                i = i + 1 #Update the index
+                print("Ya fue visitado")
+     #       elif(open_list_element.getD() + 1 > puzzle_states_list[neighbor_index].getD()): #If the new D is better than the old one
+     #           i = i + 1 #Update the index
+     #           puzzle_states_list[neighbor_index].setD(open_list_element.getD() + 1)
+     #           h = heuristic(resolved_graph, neighbor)
+     #           puzzle_states_list[neighbor_index].setH(h)
+     #           puzzle_states_list[neighbor_index].setCost(open_list_element.getD() + 1 + h)
+     #           open_list.append(puzzle_states_list[neighbor_index]) #Appende the state
+                
+            else:
+                i = i + 1 #Update the index
+                puzzle_states_list[neighbor_index].setD(open_list_element.getD() + 1)
+                h = heuristic(resolved_graph, neighbor)
+                puzzle_states_list[neighbor_index].setH(h)
+                puzzle_states_list[neighbor_index].setCost(open_list_element.getD() + 1 + h)
+                open_list.append(puzzle_states_list[neighbor_index]) #Appende the state
+
+  #      print("El largo de open list sin ordenar es: ", len(open_list))
+  #      r = 0
+  #      while(r < len(open_list)):
+  #          k = open_list[r]
+         #   if(k[0].getVertexValue() == "0" and k[1].getVertexValue() == "1" and k[2].getVertexValue() == "2"): #Finish the algorithm A*
+         #       print("Resolvio el puzzle")
+  #          print_puzzle(open_list[r].getPuzzleState(),rows,columns)
+  #          r = r + 1
+            
+        open_list = order_open_list(open_list) #Order the open list in an ascendent way
+  #      r = 0
+  #      print("El largo de open list ordenada es: ", len(open_list))
+  #      while(r < len(open_list)):
+  #          k = open_list[r]
+         #   if(k[0].getVertexValue() == "0" and k[1].getVertexValue() == "1" and k[2].getVertexValue() == "2"): #Finish the algorithm A*
+         #       print("Resolvio el puzzle")
+  #          print_puzzle(open_list[r].getPuzzleState(),rows,columns)
+  #          r = r + 1
+
+####This function order the open list #####
+def order_open_list(open_list):
+    cost_list = []
+    new_list = []
+    i = 0
+    j = 0
+    n = 0
+    while(i < len(open_list)):
+        cost_list.append(open_list[i].getCost())
+        i = i + 1
+    cost_list = sorted(cost_list) #Order the list in an ascendent way
+
+    while(n < len(cost_list)):
+        while(j < len(open_list)):
+            if(open_list[j].getCost() == cost_list[n]):
+                new_list.append(open_list[j])
+                open_list.pop(j)
+                break
+            else:
+                j = j + 1
+        n = n + 1
+        j = 0
+    return new_list
+    
+ 
+#### This function checks if the node is already in the list
+def check_node(state_list, state):
+    new_state_list = state_list
+    i = 0
+    already_there = False
+    
+    while(i < len(state_list)):
+        if(puzzle_resolved(state_list[i].getPuzzleState(), state.getPuzzleState()) == True):
+            already_there = True
+         #   print("Si hay iguales")
+            break
+        else:
+            i = i + 1
+    if(already_there == False):
+        new_state_list.append(state)
+    return new_state_list
+
+#### This function returns the index of the state in the list ####
+def review_open_list(state, puzzle_states_list):
+    i = 0
+    j = 0
+    resolved = True
+    while(i < len(puzzle_states_list)):
+        while(j < len(state.getPuzzleState())):    
+            if(state.getPuzzleState()[j].getVertexValue() != puzzle_states_list[i].getPuzzleState()[j].getVertexValue()):
+                resolved = False
+                break
+            else:
+                j = j + 1
+        if(resolved == True):
+            break
+        else:
+            i = i + 1
+            j = 0
+            resolved = True
+    return i
+
+
+### This function calculates the heuristic ###
+def heuristic(graph_resolved, graph_unresolved):
+    h = 0 ##This is the h of the node
+    i = 0 ##This is use to go over the graph nodes
+    while (i < len(graph_resolved)):
+        node_resolved = graph_resolved[search_vertex_by_value(graph_resolved,str(i))] #Get the node of the resolved graph
+        node_unresolved = graph_unresolved[search_vertex_by_value(graph_unresolved,str(i))] #Get the node of the resolved graph
+        x1 = node_resolved.getVertexX()
+        y1 = node_resolved.getVertexY()
+        x2 = node_unresolved.getVertexX()
+        y2 = node_unresolved.getVertexY()
+        while(y1 > y2):
+            y2 = y2 + 1
+            h = h +1
+        while(y2 > y1):
+            y1 = y1 + 1
+            h = h +1
+        while(x1 < x2):
+            x1 = x1 + 1
+            h = h +1
+        while(x2 < x1):
+            x2 = x2 + 1
+            h = h +1
+
+        i = i + 1
+    return h
+        
 
 #### This function sort the open_list in an ascendent form ####
-def review_open_list(graph, graph_resolved):
+def puzzle_resolved(graph, graph_resolved):
     i = 0
     resolved = True
     while(i < len(graph)):
@@ -249,6 +578,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].resetAdjacentList()
                 graph[vertex_id].updateAdjacentList([vertex_id + 1, "RIGHT"]) #Right
                 graph[vertex_id].updateAdjacentList([vertex_id + columns, "DOWN"]) #Down
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
 
@@ -256,6 +587,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].resetAdjacentList()
                 graph[vertex_id].updateAdjacentList([vertex_id - columns,"UP"]) #Up
                 graph[vertex_id].updateAdjacentList([vertex_id + 1, "RIGHT"]) #Right
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
 
@@ -264,6 +597,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].updateAdjacentList([vertex_id - columns,"UP"]) #Up
                 graph[vertex_id].updateAdjacentList([vertex_id + 1, "RIGHT"]) #Right
                 graph[vertex_id].updateAdjacentList([vertex_id + columns, "DOWN"]) #Down
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
                 
@@ -271,6 +606,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].resetAdjacentList()
                 graph[vertex_id].updateAdjacentList([vertex_id - 1, "LEFT"]) #Left
                 graph[vertex_id].updateAdjacentList([vertex_id + columns, "DOWN"]) #Down
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
 
@@ -278,6 +615,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].resetAdjacentList()
                 graph[vertex_id].updateAdjacentList([vertex_id - columns,"UP"]) #Up
                 graph[vertex_id].updateAdjacentList([vertex_id - 1, "LEFT"]) #Left
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
 
@@ -285,6 +624,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].updateAdjacentList([vertex_id - columns,"UP"]) #Up
                 graph[vertex_id].updateAdjacentList([vertex_id - 1, "LEFT"]) #Left
                 graph[vertex_id].updateAdjacentList([vertex_id + columns, "DOWN"]) #Down
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
 
@@ -310,6 +651,8 @@ def update_graph_neighbors(graph,rows,columns):
                 graph[vertex_id].updateAdjacentList([vertex_id - 1, "LEFT"]) #Left
                 graph[vertex_id].updateAdjacentList([vertex_id + 1, "RIGHT"]) #Right
                 graph[vertex_id].updateAdjacentList([vertex_id + columns, "DOWN"]) #Down
+                graph[vertex_id].setVertexX(x)
+                graph[vertex_id].setVertexX(y)
                 vertex_id = vertex_id + 1
                 y = y + 1
                 
@@ -405,10 +748,11 @@ def create_vertex(rows, columns):
 
 ### This function is going to rearrange the puzzle ###
 def rearrange_puzzle(graph, empty_cell_id, neighbor_id):
-    graph[empty_cell_id].setVertexId(neighbor_id)
-    graph[neighbor_id].setVertexId(empty_cell_id)
-    graph[empty_cell_id],graph[neighbor_id] = graph[neighbor_id],graph[empty_cell_id]
-    return graph
+    new_graph = copy.deepcopy(graph)
+    new_graph[empty_cell_id].setVertexId(neighbor_id)
+    new_graph[neighbor_id].setVertexId(empty_cell_id)
+    new_graph[empty_cell_id],new_graph[neighbor_id] = new_graph[neighbor_id],new_graph[empty_cell_id]
+    return new_graph
     
 
 #### This function is going to go over the list of nodes and return the index of the node ####
@@ -423,6 +767,17 @@ def search_vertex(graph_list, vertex_x, vertex_y):
         else:
             i = i + 1
 
+#### This function is going to go over the list of nodes and return the index of the node ####
+def search_vertex_by_value(graph_list, value):
+    i = 0
+    find_vertex = False
+    while(i < len(graph_list)):
+        node = graph_list[i]
+        if(node.getVertexValue() == value):
+            find_vertex = True
+            return i
+        else:
+            i = i + 1
 
 #### This function is going to go over the list of nodes and return the index of the node ####
 def search_empty_cell(graph_list):
@@ -440,7 +795,7 @@ def has_vertex(graph_list, vertex_id):
     i = 0
     find_vertex = False
     while(i < len(graph_list)):
-        node = graph_list[i]
+        node = graph_list[i][0]
         if(node == vertex_id):
             find_vertex = True
             return find_vertex
@@ -497,6 +852,13 @@ def print_list(lista):
     i = 0
     while(i < len(lista)):
         print(lista[i])
+        i = i + 1
+
+def print_path_list(path_list,rows,columns):
+    i = 0
+    print("Imprime path list ", len(path_list))
+    while(i < len(path_list)):
+        print_puzzle(path_list[i],rows,columns)
         i = i + 1
 
 ### This function prints the puzzle
