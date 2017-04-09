@@ -11,10 +11,10 @@ from tkinter import*
 # ConsoleWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
 # Methods:
-# 1- mostrar_juego: muestra el tablero y los robots posicionados.
+#
 ##########################################################################################################
 
-class ConsoleWindow():
+class ConsoleWindow:
     def __init__(self, master):
 
         #Initialize the instruction variable
@@ -32,7 +32,7 @@ class ConsoleWindow():
         self.master.bind('<Return>', self.getInstruction) #This is use to get the instruction when I pressed Enter key
 
         #Here, we create a frame
-        self.frame = Frame(self.master, width=200, height=500, background="Black")
+        self.frame = Frame(self.master, width=200, height=600, background="Black")
         self.frame.pack()
 
         #This label is used to set the title= "Console Window"
@@ -77,7 +77,7 @@ def displayConsole():
     master = Tk()#Create the principle window
     master.wm_title("Console Window") #Add a title to the window
     consoleWindow = ConsoleWindow(master) #Add the console frame to the principle window
-    master.geometry("200x500") #Set the size of the root
-    master.geometry("+1000+100") #Set the position of the root on the screen
+    master.geometry("200x600") #Set the size of the root
+    master.geometry("+1100+50") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
