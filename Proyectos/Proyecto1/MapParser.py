@@ -22,6 +22,8 @@ class MapParser:
         self.maxNumberOfCharacters = self.getMaxNumberOfCharacters()
         self.intermediateFile = "mapParse.txt"
         self.newFile = "mapFinalParse.txt"
+        self.city = []
+        self.cityForTkinter = []
 
 
     #This method is in charge of print the Map for the Taxi Simulation
@@ -70,6 +72,9 @@ class MapParser:
         newFile.close()
         mapFile.close()
 
+        #Call inmediatly the reviewNewMap
+        self.reviewNewMap()
+
     #This method is use to review the new map, and put the * that are ausent.
     def reviewNewMap(self):
         newString = "*"
@@ -93,16 +98,33 @@ class MapParser:
             if((line[firstNewStringPosition-1] == "|" or line[firstNewStringPosition-1] == "-") and line[firstNewStringPosition] == " " and j!= -1):
                 for i in range(firstNewStringPosition,firstNewStringPosition+j):
                     newLine = newLine + newString
+
+                #Add the row to the city matrix
+                lineToAppend = line[0:firstNewStringPosition] + newLine + line[firstNewStringPosition+j:self.maxNumberOfCharacters]                    
+                self.city.append(list(lineToAppend))
+                self.cityForTkinter.append(list(lineToAppend))
                 newLine = line[0:firstNewStringPosition] + newLine + line[firstNewStringPosition+j:self.maxNumberOfCharacters] + "\n"
                 finalMapFile.write(newLine)
+
             elif((line[firstNewStringPosition-1] == "|" or line[firstNewStringPosition-1] == "-") and line[firstNewStringPosition] == " " and k!= -1):
                 for x in range(firstNewStringPosition,firstNewStringPosition+k):
                     newLine = newLine + newString
+
+                #Add the row to the city matrix
+                lineToAppend = line[0:firstNewStringPosition] + newLine + line[firstNewStringPosition+k:self.maxNumberOfCharacters] 
+                self.city.append(list(lineToAppend))
+                self.cityForTkinter.append(list(lineToAppend))
                 newLine = line[0:firstNewStringPosition] + newLine + line[firstNewStringPosition+k:self.maxNumberOfCharacters] + "\n"
                 finalMapFile.write(newLine)
+ 
             else:
                 newLine = line
                 finalMapFile.write(newLine)
+
+                #Add the row to the city matrix
+                lineToAppend = line.replace("\n","")
+                self.city.append(list(lineToAppend))
+                self.cityForTkinter.append(list(lineToAppend))
 
         #Close all of the files
         newFile.close()
@@ -111,18 +133,32 @@ class MapParser:
     #This method is in charge of print the new map, after parse it.
     def printNewMap(self):
         newFile = open(self.newFile,'r') #Open the file with the map specification in read mode
+
         #Print all the content of the file
         for line in newFile:
             print(line, end='')
 
         #Close the map file
         newFile.close()
-        
 
+    #This method is use to get the matrix of the city
+    def getCity(self):
+        for i in range(0, len(self.city)):
+            for j in range(0,len(self.city[0])):
+                if( (i - 1 >= 0) and (i + 1 < len(self.city)) and (j-1 >= 0) and (j+1 < len(self.city[0]))):                    
+                    if((self.city[i-1][j] == "-") and (self.city[i+1][j] == "-") and (self.city[i][j-1] == "|") and (self.city[i][j+1] == "|")):
+                        self.cityForTkinter[i][j] = ("yes", self.city[i][j])
+                    else:
+                        self.cityForTkinter[i][j] = ("no", self.city[i][j])
+                else:
+                    self.cityForTkinter[i][j] = ("no", self.city[i][j])
+                    
+        return self.cityForTkinter
+        
 
 #This method creates an instance of the class MapParser
 def createMapParser():
-    parser = MapParser("mapa1.txt")
-    parser.generateNewMap()
-    parser.reviewNewMap()
-    parser.printNewMap()
+    parser = MapParser("mapa1.txt") #Creates the MapParser Object
+    parser.generateNewMap() #This instruction call the method of the MapParser Object that generates the new map
+    x = parser.getCity()
+    return parser.getCity() #Returns the city matrix
