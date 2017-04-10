@@ -13,6 +13,8 @@ from PIL import ImageTk, Image
 #Import from the MapParser module the city matrix
 import MapParser
 
+#Import of the module ConsoleGraphicalInterface to get the actual instruction
+import ConsoleGraphicalInterface
 
 ###########################################################################################################
 # TaxiSimulationWindow Class:
@@ -51,6 +53,8 @@ class TaxiSimulationWindow:
 
         #Here, we call the function in charge of build the city
         self.buildCity()
+
+        self.getConsoleInstruction()
 
     #This method is in charge of build the city
     def buildCity(self):
@@ -110,7 +114,14 @@ class TaxiSimulationWindow:
             #Resize the image with the size of the square
             displayImage = self.streetImage.resize((width, height), Image.ANTIALIAS)
             displayImage = ImageTk.PhotoImage(displayImage)
+            
         return displayImage
+
+
+    #This function is in charge of get the instruction from the Console Window every updateTime
+    def getConsoleInstruction(self):
+        updateTime = 1000
+        self.master.after(updateTime, self.getConsoleInstruction)
         
 
 

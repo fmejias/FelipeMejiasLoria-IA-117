@@ -17,8 +17,9 @@ import TaxiSimulationGraphicalInterface
 #ConsoleGraphicalInterface.displayConsole()
 
 #Call the function in charge of display the taxi simulation window
-TaxiSimulationGraphicalInterface.displayTaxiSimulation()
+#TaxiSimulationGraphicalInterface.displayTaxiSimulation()
 
 #Here, we initialize the threads
-#_thread.start_new_thread(ConsoleGraphicalInterface.displayConsole, ())
-#_thread.start_new_thread(TaxiSimulationGraphicalInterface.displayTaxiSimulation, ())
+_thread.start_new_thread(TaxiSimulationGraphicalInterface.displayTaxiSimulation, ())
+_thread.start_new_thread(ConsoleGraphicalInterface.displayConsole, ())
+

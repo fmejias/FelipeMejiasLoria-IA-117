@@ -7,6 +7,10 @@
 #Import of the standard Python interface to the Tk GUI toolkit
 from tkinter import*
 
+##Declaration of some global variables to comunicate with the Threads
+instruction = ""
+consoleWindow = ""
+
 ###########################################################################################################
 # ConsoleWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -29,7 +33,7 @@ class ConsoleWindow:
 
         #Set the master as the root
         self.master = master
-        self.master.bind('<Return>', self.getInstruction) #This is use to get the instruction when I pressed Enter key
+        self.master.bind('<Return>', self.setInstruction) #This is use to get the instruction when I pressed Enter key
 
         #Here, we create a frame
         self.frame = Frame(self.master, width=200, height=600, background="Black")
@@ -51,13 +55,12 @@ class ConsoleWindow:
         self.actualEntry = e1
 
     #This method get the instruction when I press the Enter Key
-    def getInstruction(self,event):
+    def setInstruction(self,event):
         #Update the y coordinate
         self.y = self.y + 20
 
         #Get the actual instruction
-        instruction = self.actualEntry.get()
-        print("La instrucción es: ", instruction)
+        self.instruction = self.actualEntry.get()
 
         #Here we create an entry
         e=Entry(self.frame, width=200, background = "Black", fg = "White")
@@ -70,14 +73,25 @@ class ConsoleWindow:
         #Update the actual entry
         self.actualEntry = e
         
-
+    #This method return the instruction
+    def getInstruction(self):
+        return self.instruction
 
 #This function display the console
 def displayConsole():
+    global instruction #Declaration of the global variable instruction
+    global consoleWindow #Declaration of the global Console Window object
     master = Tk()#Create the principle window
     master.wm_title("Console Window") #Add a title to the window
     consoleWindow = ConsoleWindow(master) #Add the console frame to the principle window
     master.geometry("200x600") #Set the size of the root
-    master.geometry("+1100+50") #Set the position of the root on the screen
+    master.geometry("+1100+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
+
+#This function returns the actual instruction
+def returnInstruction():
+    global consoleWindow
+    global instruction
+    instruction = consoleWindow.getInstruction()
+    return instruction

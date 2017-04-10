@@ -18,10 +18,10 @@
 
 class MapParser:
     def __init__(self, mapFile):
-        self.mapFile = mapFile
+        self.mapFile = "MapFiles/" + mapFile
         self.maxNumberOfCharacters = self.getMaxNumberOfCharacters()
-        self.intermediateFile = "mapParse.txt"
-        self.newFile = "mapFinalParse.txt"
+        self.intermediateFile = "MapFiles/mapParse.txt"
+        self.newFile = "MapFiles/mapFinalParse.txt"
         self.city = []
         self.cityForTkinter = []
 
