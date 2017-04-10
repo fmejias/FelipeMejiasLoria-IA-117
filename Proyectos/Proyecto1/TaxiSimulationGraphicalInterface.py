@@ -6,14 +6,13 @@
 
 #Import of the standard Python interface to the Tk GUI toolkit
 from tkinter import*
-from PIL import ImageTk, Image
 
+#Import of the Image module
+from PIL import ImageTk, Image
 
 #Import from the MapParser module the city matrix
 import MapParser
 
-#Import to generate random numbers
-from random import randint
 
 ###########################################################################################################
 # TaxiSimulationWindow Class:
@@ -36,10 +35,16 @@ class TaxiSimulationWindow:
         self.listOfLabels = []
 
         #Set all of the images
-        self.taxiImage = PhotoImage(file="ProjectImages/taxi1.png")
-        self.wallImage = PhotoImage(file="prueba.png")
-        self.img = Image.open("barrera4.png")
-        
+        self.taxiRightImage = Image.open("ProjectImages/taxiDerecha.png")
+        self.taxiLeftImage = Image.open("ProjectImages/taxiIzquierda.png")
+        self.taxiUpImage = Image.open("ProjectImages/taxiArriba.png")
+        self.taxiDownImage = Image.open("ProjectImages/taxiAbajo.png")
+        self.wallHorizontalImage = Image.open("ProjectImages/barreraHorizontal2.png")
+        self.wallVerticalImage = Image.open("ProjectImages/barreraVertical2.png")
+        self.streetImage = Image.open("ProjectImages/calle.png")
+        self.waterImage = Image.open("ProjectImages/rio.png")
+        self.cuadraSinIdentificacionImage = Image.open("ProjectImages/cuadraSinIdentificacion.png")
+        self.cuadraIdentificada = ""
         
         #Set the master as the root
         self.master = master
@@ -51,24 +56,61 @@ class TaxiSimulationWindow:
     def buildCity(self):
         widthOfEachFrame = self.width // self.columns
         heightOfEachFrame = self.height // self.rows
-        colors = ["Red", "Green", "Yellow", "Blue"]
 
         #Go over all the city matrix
         for i in range (0, self.rows):
             for j in range (0,self.columns):
-                randomIndex = randint(0,3)
-                frame=Frame(self.master, width=widthOfEachFrame, height=heightOfEachFrame, background=colors[randomIndex])
+                frame=Frame(self.master, width=widthOfEachFrame, height=heightOfEachFrame, background="White")
                 frame.grid(row=i, column=j)
 
                 #Resize the image with the size of the square
-                displayImage = self.img.resize((widthOfEachFrame, heightOfEachFrame), Image.ANTIALIAS)
-                displayImage = ImageTk.PhotoImage(displayImage)
+                displayImage = self.resizeImage(self.city[i][j][0], self.city[i][j][1], widthOfEachFrame, heightOfEachFrame)
 
                 #Create the Label and add it to the List of Labels
                 label = Label(frame, image = displayImage)
                 label.image = displayImage
                 label.place(x=0,y=0)
                 self.listOfLabels.append(label) #Add the Label to the list
+        
+    #This method return the image resize
+    def resizeImage(self,esCuadra,imageValue,width,height):
+        displayImage = 0
+        if(imageValue == "-"):
+            #Resize the image with the size of the square
+            displayImage = self.wallHorizontalImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+        elif(imageValue == "|"):
+            #Resize the image with the size of the square
+            displayImage = self.wallVerticalImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+        elif(imageValue == "*"):
+            #Resize the image with the size of the square
+            displayImage = self.waterImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+        elif(esCuadra == "no" and imageValue == " "):
+            #Resize the image with the size of the square
+            displayImage = self.streetImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+        elif(imageValue == "D"):
+            #Resize the image with the size of the square
+            displayImage = self.taxiRightImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+        elif(esCuadra == "yes"):
+            if(imageValue == " "):
+                #Resize the image with the size of the square
+                displayImage = self.cuadraSinIdentificacionImage.resize((width, height), Image.ANTIALIAS)
+                displayImage = ImageTk.PhotoImage(displayImage)
+            else:
+                imagePath = "ProjectImages/" + imageValue + ".png"
+                self.cuadraIdentificada = Image.open(imagePath)
+                #Resize the image with the size of the square
+                displayImage = self.cuadraIdentificada.resize((width, height), Image.ANTIALIAS)
+                displayImage = ImageTk.PhotoImage(displayImage)
+        else:
+            #Resize the image with the size of the square
+            displayImage = self.streetImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+        return displayImage
         
 
 
