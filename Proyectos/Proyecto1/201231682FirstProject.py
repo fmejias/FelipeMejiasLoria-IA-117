@@ -23,3 +23,5 @@ import TaxiSimulationGraphicalInterface
 _thread.start_new_thread(TaxiSimulationGraphicalInterface.displayTaxiSimulation, ())
 _thread.start_new_thread(ConsoleGraphicalInterface.displayConsole, ())
 
+
+

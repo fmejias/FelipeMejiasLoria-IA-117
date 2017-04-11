@@ -10,6 +10,9 @@ import queue
 ###This import is necessary to generate random numbers
 from random import randint
 
+##Import the copy module
+import copy
+
 ###########################################################################################################
 # Client Class:
 ##########################################################################################################
@@ -221,7 +224,7 @@ class CityGraph:
         self.routesVisited = [] #Contains all of the routes visited by the taxi (Is a list of lists)
         self.actualNode = ""  #This is going to be the actual node of the taxi
         self.destinationNode = ""
-        self.cityMatrix = city #Contains the matrix of the city
+        self.cityMatrix = copy.deepcopy(city) #Contains the matrix of the city
         self.rows = len(self.cityMatrix) #Rows of the city matrix
         self.columns = len(self.cityMatrix[0]) #Columns of the city matrix
 
@@ -304,6 +307,7 @@ class CityGraph:
 
     #This method is in charge of perform the BFS search
     def BFS(self, destinationNode):
+        
         #For the beginning, I use this
         self.haveBlockAsNeighbor()
         
@@ -437,7 +441,7 @@ class CityGraph:
     #This method is in charge of adding N Random Clients to the City
     def addRandomClients(self,n):
         for i in range(0,n):
-            listOfBlocks = self.searchAllBlocks()
+            listOfBlocks = self.searchAllBlocks() #Get a list with all of the blocks
             randomOriginIndex = randint(0,len(listOfBlocks)-1) #This is for the origin of the client
             randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
 
@@ -469,8 +473,10 @@ class CityGraph:
 
     #This method is in charge of adding a specific client to the City (c1 y c2 son Strings)
     def addSpecificClient(self,c1,c2):
+        #Get initial and destination blocks
         initialNode = searchNodeByValue(c1)
-        destinationNode = searchNodeByValue(c2) 
+        destinationNode = searchNodeByValue(c2)
+        
         #Establish the coordinates of the client
         clientX = initialNode.getX() - 1
         clientY = initialNode.getY()
@@ -498,22 +504,56 @@ class CityGraph:
         destinationNode = self.searchNodeByValue(c)
 
         ##For the moment, Im going to use the BFS search algorithm
-        BFS(destinationNode)
+        self.BFS(destinationNode)
+
+    #This method is use to search all of the clients
+    def search(self):
+        areThereClients = self.isThereAClient()
+        while(areThereClients != False):
+
+            #Search for a client node
+            clientNode = self.searchClientNode()
+
+            #Get the destination block of that client
+            destinationBlock = clientNode.getDestinationBlockOfTheClient()
+
+            #Get the destination node
+            destinationNode = self.searchNodeByValue(destinationBlock.getNodeValue())
+
+            #Calculate the path to go and pick up the client
+            self.BFS(clientNode)
+
+            #Then calculate the path to go and leave the client in its destiny
+            self.BFS(destinationNode)
 
     #This method is in charge of go over the city with the taxi
     def taxiTravel(self):
         #Get all of the blocks available
         listOfBlocks = self.searchAllBlocks()
-        randomOriginIndex = randint(0,len(listOfBlocks)-1) #This is for the origin of the client
+
+        #This is for the origin of the client
+        randomOriginIndex = randint(0,len(listOfBlocks)-1)
+
+        #Get a random block to go
         randomBlock = listOfBlocks[randomOriginIndex]
 
+        #Specify the destination node as the random block
         destinationNode = randomBlock
 
         ##For the moment, Im going to use the BFS search algorithm
-        BFS(destinationNode)
+        self.BFS(destinationNode)
+
+        #Print the travel
+        self.printRoute()
+
+        #Return the travel
+        return self.routeToTravel
 
     #This method build all of the travel
     def buildTravel(self, destinationNode):
+        #Reset the route to travel
+        self.routeToTravel = []
+        
         destinationNodeX = destinationNode.getX()
         destinationNodeY = destinationNode.getY()
         fatherCoordinates = self.cityMatrix[destinationNodeX][destinationNodeY].getFather() #Get father coordinates of the destination node
@@ -527,6 +567,9 @@ class CityGraph:
 
         #Then reverse the list
         self.routeToTravel.reverse()
+
+        #Add the route to the routes visited list
+        self.routesVisited.append(self.routeToTravel)
             
 
     #This method is in charge of search a node by the coordinates
@@ -604,10 +647,8 @@ class CityGraph:
             print("Nodo visitado-> y: ", self.routeToTravel[i][1])
             print()
 
-    
 
-
-#Este metodo se utiliza para probar que todo sirva bien
-def prueba(matrix):
+#This method return an CityGraph Object
+def createCityGraph(matrix):
     cityGraph = CityGraph(matrix)
     return cityGraph
