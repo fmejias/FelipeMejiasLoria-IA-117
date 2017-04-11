@@ -16,6 +16,9 @@ import MapParser
 #Import of the module ConsoleGraphicalInterface to get the actual instruction
 import ConsoleGraphicalInterface
 
+#Import of the module CityObjects to create the City Graph
+import CityObjects
+
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -130,6 +133,13 @@ def displayTaxiSimulation():
     master = Tk()#Create the principle window
     master.wm_title("Taxi Simulation") #Add a title to the window
     taxiSimulationWindow = TaxiSimulationWindow(master) #Add the taxi simulation frame to the principle window
+
+    #This is used to build the City Graph
+#    cityGraph = CityObjects.prueba(taxiSimulationWindow.city) #This returns the city graph
+#    destinationNode = cityGraph.searchNodeByValue("B") #This is going to be the destination node
+#    cityGraph.DFS(destinationNode) #This is the search algorithm
+#    cityGraph.printRoute() #This function print the route
+    
     master.geometry("1100x650") #Set the size of the root
     master.geometry("+0+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable

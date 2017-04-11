@@ -55,6 +55,7 @@ class CityNode:
         self.client = Client() #Each city node contains an object client
         self.haveBlockAsNeighbor = False 
         self.haveAClient = False
+
         self.setTypeAndSetValue(value, isBlock) #To specified the type of the node
 
     #This method is in charge of specified the type and the value of the node
@@ -101,7 +102,7 @@ class CityNode:
         self.belongToBlock = block
 
     #This method get the block of the wall
-    def getBlockOfWall(self,block):
+    def getBlockOfWall(self):
         return self.belongToBlock
 
     #This method return the client  of that city node
@@ -303,6 +304,9 @@ class CityGraph:
 
     #This method is in charge of perform the BFS search
     def BFS(self, destinationNode):
+        #For the beginning, I use this
+        self.haveBlockAsNeighbor()
+        
         #First, search the taxi node
         sourceNode = self.searchTaxiNode()
 
@@ -325,6 +329,10 @@ class CityGraph:
             #Sixth, extract node from the queue
             nodeFromQueue = q.get()
 
+            #Finish condition
+            if(nodeFromQueue.getNodeValue() == destinationNode.getNodeValue()):
+                break
+
             #7, extract the adjacent list
             adjacentNodesList = nodeFromQueue.getAdjacentNodesList()
 
@@ -334,10 +342,12 @@ class CityGraph:
                 #9, get adjacent node and then get its coordinates
                 adjacentNodeX = adjacentNodesList[i][0]
                 adjacentNodeY = adjacentNodesList[i][1]
-                adjacentNode = searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
+                adjacentNode = self.searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
                 
                 #10, if the adjacent node is not visited, then set as visited
-                if(adjacentNode.isVisited() == False):
+                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or adjacentNode.getNodeType() == "block" or
+                                                          adjacentNode.getBlockAsNeighbor() == True)):
+
                     self.cityMatrix[adjacentNodeX][adjacentNodeY].setVisit()
                     self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromQueue.getX(),nodeFromQueue.getY()))
 
@@ -349,6 +359,9 @@ class CityGraph:
 
     #This method is in charge of perform the DFS search
     def DFS(self, destinationNode):
+        #For the beginning, I use this
+        self.haveBlockAsNeighbor()
+        
         #First, search the taxi node
         sourceNode = self.searchTaxiNode()
 
@@ -370,6 +383,10 @@ class CityGraph:
             #Sixth, extract node from the stack
             nodeFromStack = stack.pop()
 
+            #Finish condition
+            if(nodeFromStack.getNodeValue() == destinationNode.getNodeValue()):
+                break
+
             #7, extract the adjacent list
             adjacentNodesList = nodeFromStack.getAdjacentNodesList()
 
@@ -379,12 +396,13 @@ class CityGraph:
                 #9, get adjacent node and then get its coordinates
                 adjacentNodeX = adjacentNodesList[i][0]
                 adjacentNodeY = adjacentNodesList[i][1]
-                adjacentNode = searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
+                adjacentNode = self.searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
                 
                 #10, if the adjacent node is not visited, then set as visited
-                if(adjacentNode.isVisited() == False):
+                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or adjacentNode.getNodeType() == "block" or
+                                                          adjacentNode.getBlockAsNeighbor() == True)):
                     self.cityMatrix[adjacentNodeX][adjacentNodeY].setVisit()
-                    self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromQueue.getX(),nodeFromQueue.getY()))
+                    self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromStack.getX(),nodeFromStack.getY()))
 
                     #11, Add the adjacentNode to the stack
                     stack.append(adjacentNode)
@@ -502,7 +520,7 @@ class CityGraph:
         father = self.cityMatrix[fatherCoordinates[0]][fatherCoordinates[1]]
 
         #While the father is different from the taxi node
-        while (father.getValue() != "D"):
+        while (father.getNodeValue() != "D"):
             self.routeToTravel.append(fatherCoordinates)
             fatherCoordinates = father.getFather()
             father = self.cityMatrix[fatherCoordinates[0]][fatherCoordinates[1]]
@@ -542,12 +560,16 @@ class CityGraph:
     def haveBlockAsNeighbor(self):
         for i in range(0,self.rows):
             for j in range(0,self.columns):
-                if((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
-                   and self.cityMatrix[i+1][j].getNodeType() == "block"):
-                    self.cityMatrix[i][j].setBlockAsNeighbor()
-                elif ((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
-                      and self.cityMatrix[i-1][j].getNodeType() == "block"):
-                    self.cityMatrix[i][j].setBlockAsNeighbor()
+                if(i+1 < self.rows):
+                    if((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
+                       and self.cityMatrix[i+1][j].getNodeType() == "block"):
+                        self.cityMatrix[i][j].setBlockAsNeighbor()
+                        self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i+1][j].getNodeValue())
+                elif(i-1 >= 0):
+                    if ((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
+                          and self.cityMatrix[i-1][j].getNodeType() == "block"):
+                        self.cityMatrix[i][j].setBlockAsNeighbor()
+                        self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i-1][j].getNodeValue())
 
     #This method is in charge of return a list with all of the node blocks availables
     def searchAllBlocks(self):
@@ -574,3 +596,18 @@ class CityGraph:
                 if(self.cityMatrix[i][j].getNodeValue() == "O"):
                     clientsExist = True
         return clientsExist
+
+    #This method print a route
+    def printRoute(self):
+        for i in range(0, len(self.routeToTravel)):
+            print("Nodo visitado-> x: ", self.routeToTravel[i][0])
+            print("Nodo visitado-> y: ", self.routeToTravel[i][1])
+            print()
+
+    
+
+
+#Este metodo se utiliza para probar que todo sirva bien
+def prueba(matrix):
+    cityGraph = CityGraph(matrix)
+    return cityGraph
