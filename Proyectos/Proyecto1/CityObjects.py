@@ -7,6 +7,9 @@
 ###This import is necessary to get a Python queue #####
 import queue
 
+###This import is necessary to generate random numbers
+from random import randint
+
 ###########################################################################################################
 # Client Class:
 ##########################################################################################################
@@ -50,7 +53,8 @@ class CityNode:
         self.father = 0
         self.belongToBlock = ""
         self.client = Client() #Each city node contains an object client
-
+        self.haveBlockAsNeighbor = False 
+        self.haveAClient = False
         self.setTypeAndSetValue(value, isBlock) #To specified the type of the node
 
     #This method is in charge of specified the type and the value of the node
@@ -68,6 +72,29 @@ class CityNode:
         elif(value == "D"):
             self.typeOfNode = "taxi"
 
+    #This method set the block as neighbor
+    def setBlockAsNeighbor(self):
+        self.haveBlockAsNeighbor = True
+
+    #This method get the block as neighbor
+    def getBlockAsNeighbor(self):
+        return self.haveBlockAsNeighbor
+
+    #This method indicates that this node have a client
+    def setHaveAClient(self):
+        self.haveAClient = True
+
+    #This method indicates that this node not have a client
+    def resetHaveAClient(self):
+        self.haveAClient = False
+
+    #This method returns if this node have a client
+    def getHaveAClient(self):
+        return self.haveAClient
+
+    #This method get the block as neighbor
+    def getBlockAsNeighbor(self):
+        return self.haveBlockAsNeighbor
     
     #This method set the block to a wall according to that city node
     def setBlockToWall(self, block):
@@ -321,8 +348,50 @@ class CityGraph:
         self.buildTravel(destinationNode)
 
     #This method is in charge of perform the DFS search
-    def DFS(self):
-        print("Realiza DFS")
+    def DFS(self, destinationNode):
+        #First, search the taxi node
+        sourceNode = self.searchTaxiNode()
+
+        #Get the coordinates of the source node
+        sourceNodeX = sourceNode.getX()
+        sourceNodeY = sourceNode.getY()
+
+        #Second, set the source node as visited
+        self.cityMatrix[sourceNodeX][sourceNodeY].setVisit()
+
+        #Third, create a stack
+        stack = []
+
+        #4, add the sourceNode to the stack
+        stack.append(sourceNode)
+
+        #Fifth, while the stack is not empty
+        while( stack != []):
+            #Sixth, extract node from the stack
+            nodeFromStack = stack.pop()
+
+            #7, extract the adjacent list
+            adjacentNodesList = nodeFromStack.getAdjacentNodesList()
+
+            #8, explore all adjacent nodes
+            for i in range(0, len(adjacentNodesList)):
+
+                #9, get adjacent node and then get its coordinates
+                adjacentNodeX = adjacentNodesList[i][0]
+                adjacentNodeY = adjacentNodesList[i][1]
+                adjacentNode = searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
+                
+                #10, if the adjacent node is not visited, then set as visited
+                if(adjacentNode.isVisited() == False):
+                    self.cityMatrix[adjacentNodeX][adjacentNodeY].setVisit()
+                    self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromQueue.getX(),nodeFromQueue.getY()))
+
+                    #11, Add the adjacentNode to the stack
+                    stack.append(adjacentNode)
+
+        #12, then build the path
+        self.buildTravel(destinationNode)
+
 
     #This method is in charge of perform the A*
     def astar(self):
@@ -347,17 +416,83 @@ class CityGraph:
                 if(self.cityMatrix[i][j].getNodeValue() == "O"):
                     return self.cityMatrix[i][j]
 
-    #This method is in charge of adding N Clients to the City
-    def addClients(self,n):
-        print()
+    #This method is in charge of adding N Random Clients to the City
+    def addRandomClients(self,n):
+        for i in range(0,n):
+            listOfBlocks = self.searchAllBlocks()
+            randomOriginIndex = randint(0,len(listOfBlocks)-1) #This is for the origin of the client
+            randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
 
-    #This method is in charge of park the Taxi in C block
+            #This is to verificate that the destination and the origin are not the same
+            while(randomOriginIndex != randomDestinationIndex):
+                randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
+
+            #Establish the coordinates of the client
+            clientX = listOfBlocks[randomOriginIndex].getX() - 1
+            clientY = listOfBlocks[randomOriginIndex].getY()
+
+            #Get the client node
+            clientNode = self.cityMatrix[clientX][clientY]
+
+            if(clientNode.getNodeValue() != "O"):
+                self.cityMatrix[clientX][clientY].setNodeValue("O")
+                self.cityMatrix[clientX][clientY].setHaveAClient()
+                self.cityMatrix[clientX][clientY].setInitialBlockToClient(listOfBlocks[randomOriginIndex].getNodeValue())
+                self.cityMatrix[clientX][clientY].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
+
+            else:
+                #Establish the coordinates of the client
+                clientX = listOfBlocks[randomOriginIndex].getX() + 1
+                clientY = listOfBlocks[randomOriginIndex].getY()
+                self.cityMatrix[clientX][clientY].setNodeValue("O")
+                self.cityMatrix[clientX][clientY].setHaveAClient()
+                self.cityMatrix[clientX][clientY].setInitialBlockToClient(listOfBlocks[randomOriginIndex].getNodeValue())
+                self.cityMatrix[clientX][clientY].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
+
+    #This method is in charge of adding a specific client to the City (c1 y c2 son Strings)
+    def addSpecificClient(self,c1,c2):
+        initialNode = searchNodeByValue(c1)
+        destinationNode = searchNodeByValue(c2) 
+        #Establish the coordinates of the client
+        clientX = initialNode.getX() - 1
+        clientY = initialNode.getY()
+
+        #Get the client node
+        clientNode = self.cityMatrix[clientX][clientY]
+
+        if(clientNode.getNodeValue() != "O"):
+            self.cityMatrix[clientX][clientY].setNodeValue("O")
+            self.cityMatrix[clientX][clientY].setHaveAClient()
+            self.cityMatrix[clientX][clientY].setInitialBlockToClient(initialNode.getNodeValue())
+            self.cityMatrix[clientX][clientY].setDestinationBlockToClient(destinationNode.getNodeValue())
+
+        else:
+            #Establish the coordinates of the client
+            clientX = initialNode.getX() + 1
+            clientY = initialNode.getY()
+            self.cityMatrix[clientX][clientY].setNodeValue("O")
+            self.cityMatrix[clientX][clientY].setHaveAClient()
+            self.cityMatrix[clientX][clientY].setInitialBlockToClient(initialNode.getNodeValue())
+            self.cityMatrix[clientX][clientY].setDestinationBlockToClient(destinationNode.getNodeValue())
+    
+    #This method is in charge of park the Taxi in C block, C is a string
     def parkTaxi(self,c):
-        print()
+        destinationNode = self.searchNodeByValue(c)
+
+        ##For the moment, Im going to use the BFS search algorithm
+        BFS(destinationNode)
 
     #This method is in charge of go over the city with the taxi
     def taxiTravel(self):
-        print()
+        #Get all of the blocks available
+        listOfBlocks = self.searchAllBlocks()
+        randomOriginIndex = randint(0,len(listOfBlocks)-1) #This is for the origin of the client
+        randomBlock = listOfBlocks[randomOriginIndex]
+
+        destinationNode = randomBlock
+
+        ##For the moment, Im going to use the BFS search algorithm
+        BFS(destinationNode)
 
     #This method build all of the travel
     def buildTravel(self, destinationNode):
@@ -401,3 +536,41 @@ class CityGraph:
                 if(self.cityMatrix[i][j].getNodeValue() == "D"):
                     self.actualNode = self.cityMatrix[i][j]
                     return self.cityMatrix[i][j]
+
+    
+    #This method set all the walls (-) that have blocks as neighbors
+    def haveBlockAsNeighbor(self):
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
+                   and self.cityMatrix[i+1][j].getNodeType() == "block"):
+                    self.cityMatrix[i][j].setBlockAsNeighbor()
+                elif ((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
+                      and self.cityMatrix[i-1][j].getNodeType() == "block"):
+                    self.cityMatrix[i][j].setBlockAsNeighbor()
+
+    #This method is in charge of return a list with all of the node blocks availables
+    def searchAllBlocks(self):
+        blocks = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeType() == "block" and self.cityMatrix[i][j].getNodeValue() != " "):
+                    blocks.append(self.cityMatrix[i][j])
+        return blocks
+
+    #This method is in charge of search any client
+    def searchClientNode(self):
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue() == "O"):
+                    return self.cityMatrix[i][j]
+                    
+
+    #This method is in charge of tell if there are some clients
+    def isThereAClient(self):
+        clientsExist = False
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue() == "O"):
+                    clientsExist = True
+        return clientsExist
