@@ -528,6 +528,11 @@ class CityGraph:
         #Return the travel
         return self.routeToTravel
 
+    #This method is in charge of show all of the routes travel by the taxi
+    def showAllTaxiRoutes(self):
+        #Return the travel
+        return self.routesVisited
+
     #This method is use to search all of the clients
     def search(self):
         areThereClients = self.isThereAClient()

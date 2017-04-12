@@ -509,7 +509,58 @@ class TaxiSimulationWindow:
                 del routeTravel[0]
                 
             self.master.after(self.updateTime, self.getConsoleInstruction)
-        
+
+
+    #This function is in charge of doing the show instruction
+    def doShowInstruction(self):
+        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        if(self.actualInstruction[2] == "on"):
+            #Do the show instruction, and save the travel in the travelList
+            allRoutes = self.cityGraph.showAllTaxiRoutes()[:]
+
+            for i in range(0,len(allRoutes)):
+                for j in range(0, len(allRoutes[i])):
+                    x = allRoutes[i][j][0]
+                    y = allRoutes[i][j][1]
+                
+                    #Resize the image with the size of the square
+                    displayImage = self.resizeImage("no", "V", self.widthOfEachFrame, self.heightOfEachFrame)
+                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                    frame.grid(row=x, column=y)
+                    
+                    #Create the Label and add it to the List of Labels
+                    label = Label(frame, image = displayImage)
+                    label.image = displayImage
+                    label.place(x=0,y=0)
+
+                    #Add the Label to the matrix
+                    self.matrixOfLabels[x][y] = label
+                
+            self.master.after(self.updateTime, self.getConsoleInstruction)
+
+        elif(self.actualInstruction[2] == "off"):
+            #Do the route instruction, and save the travel in the travelList
+            allRoutes = self.cityGraph.showAllTaxiRoutes()[:]
+
+            for i in range(0,len(allRoutes)):
+                for j in range(0, len(allRoutes[i])):
+                    x = allRoutes[i][j][0]
+                    y = allRoutes[i][j][1]
+                
+                    #Resize the image with the size of the square
+                    displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
+                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                    frame.grid(row=x, column=y)
+                    
+                    #Create the Label and add it to the List of Labels
+                    label = Label(frame, image = displayImage)
+                    label.image = displayImage
+                    label.place(x=0,y=0)
+
+                    #Add the Label to the matrix
+                    self.matrixOfLabels[x][y] = label
+                
+            self.master.after(self.updateTime, self.getConsoleInstruction)        
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
