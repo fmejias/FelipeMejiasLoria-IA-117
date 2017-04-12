@@ -221,12 +221,14 @@ class CityGraph:
     def __init__(self, city):
         self.routeTraveled = [] #Contains the route in progress of the taxi
         self.routeToTravel = [] #Contains the route from one block to another block
+        self.searchList = [] #Contains all the path that the taxi have to visit to deliver the clients (Is a list of lists)
         self.routesVisited = [] #Contains all of the routes visited by the taxi (Is a list of lists)
         self.actualNode = ""  #This is going to be the actual node of the taxi
         self.destinationNode = ""
         self.cityMatrix = copy.deepcopy(city) #Contains the matrix of the city
         self.rows = len(self.cityMatrix) #Rows of the city matrix
         self.columns = len(self.cityMatrix[0]) #Columns of the city matrix
+        self.taxiInitialPosition = 0 #Variable use in the search method
 
         #Call the method in charge of create the city graph
         self.createCityGraph(len(city),len(city[0]))
@@ -536,22 +538,44 @@ class CityGraph:
     #This method is use to search all of the clients
     def search(self):
         areThereClients = self.isThereAClient()
+        self.taxiInitialPosition = self.searchTaxiNode()
         while(areThereClients != False):
 
             #Search for a client node
             clientNode = self.searchClientNode()
 
             #Get the destination block of that client
-            destinationBlock = clientNode.getDestinationBlockOfTheClient()
+            destinationBlock = self.cityMatrix[clientNode.getX()][clientNode.getY()].getDestinationBlockOfTheClient()
 
             #Get the destination node
-            destinationNode = self.searchNodeByValue(destinationBlock.getNodeValue())
+            destinationNode = self.searchNodeByValue(destinationBlock)
 
             #Calculate the path to go and pick up the client
             self.BFS(clientNode)
 
+            #Append the path to the search list
+            self.searchList.append(self.routeToTravel)
+
+            #Update the position of the taxi
+            self.updateInitialAndFinalValue()
+
             #Then calculate the path to go and leave the client in its destiny
             self.BFS(destinationNode)
+
+            #Append the path to the search list
+            self.searchList.append(self.routeToTravel)
+
+            #Reset the client
+            self.cityMatrix[clientNode.getX()][clientNode.getY()].setNodeValue(" ")
+
+            #Update the position of the taxi
+            self.updateInitialAndFinalValue()
+
+            #See if there clients
+            areThereClients = self.isThereAClient()
+
+        #Then return the list with all the path that the taxi has to go
+        return self.searchList
 
     #This method is in charge of go over the city with the taxi
     def taxiTravel(self):
@@ -664,6 +688,7 @@ class CityGraph:
             for j in range(0,self.columns):
                 if(self.cityMatrix[i][j].getNodeValue() == "O"):
                     clientsExist = True
+                    
         return clientsExist
 
     #This method print a route

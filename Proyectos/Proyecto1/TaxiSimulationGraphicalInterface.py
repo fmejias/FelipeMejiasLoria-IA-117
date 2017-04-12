@@ -54,6 +54,10 @@ class TaxiSimulationWindow:
         #List with the travel of the taxi
         self.travelList = []
 
+        #This variable is need it for the search instruction
+        self.searchIndex = 0
+        self.searchList = []
+
         #This indicates if there is an instruction executing at the time
         self.executingInstruction = False
 
@@ -195,7 +199,6 @@ class TaxiSimulationWindow:
                 self.sameInstruction = False
             elif (instruction == self.actualInstruction):
                 self.sameInstruction = True
-                
                 
         #This part select the according method to execute depends on the instruction inserted by the user
         if(len(self.actualInstruction) > 1 and self.sameInstruction == False):
@@ -560,7 +563,95 @@ class TaxiSimulationWindow:
                     #Add the Label to the matrix
                     self.matrixOfLabels[x][y] = label
                 
-            self.master.after(self.updateTime, self.getConsoleInstruction)        
+            self.master.after(self.updateTime, self.getConsoleInstruction)
+
+    #This function is in charge of perform the search for clients instruction
+    def doSearchInstruction(self):
+        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+
+        if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
+            self.doAnimation = True
+            self.updateTime = int(actualInstruction[2])
+            self.master.after(self.updateTime, self.doSearchInstruction)
+        elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
+            self.doAnimation = False
+            self.master.after(self.updateTime, self.doSearchInstruction)
+        elif(self.doAnimation == True):
+            #Do the animation
+            
+            if(self.searchIndex < len(self.travelList)):
+
+                if(self.searchList != []):
+                    i = self.searchList[0][0]
+                    j = self.searchList[0][1]
+
+                    #Initialize all of the variables
+                    taxiX = 0
+                    taxiY = 0
+
+                    #This part check when to used old variables
+                    if(self.taxiNode == 0):
+                        self.taxiNode = self.cityGraph.taxiInitialPosition
+                        taxiX = self.taxiNode.getX()
+                        taxiY = self.taxiNode.getY()
+                    else:
+                        taxiX = self.oldCoordinates[0]
+                        taxiY = self.oldCoordinates[1]
+                    
+                    #Resize the image with the size of the square
+                    displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
+                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                    frame.grid(row=taxiX, column=taxiY)
+                    
+                    #Create the Label and add it to the List of Labels
+                    label = Label(frame, image = displayImage)
+                    label.image = displayImage
+                    label.place(x=0,y=0)
+
+                    #Add the Label to the matrix
+                    self.matrixOfLabels[taxiX][taxiY] = label
+
+                    #Resize the image with the size of the square
+                    displayImage = self.resizeImage("no", "D", self.widthOfEachFrame, self.heightOfEachFrame)
+                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                    frame.grid(row=i, column=j)
+                    
+                    #Create the Label and add it to the List of Labels
+                    label = Label(frame, image = displayImage)
+                    label.image = displayImage
+                    label.place(x=0,y=0)
+
+                    #Add the Label to the matrix
+                    self.matrixOfLabels[i][j] = label
+
+                    #Save the old coordinates
+                    self.oldCoordinates = [i,j]
+
+                    #Delete an item of the list
+                    del self.searchList[0]
+
+                    #Repeat the function with this timer
+                    self.master.after(self.updateTime, self.doSearchInstruction)
+                
+                #If the taxi get to its destination
+                else:
+                  
+                    self.searchIndex = self.searchIndex + 1
+                    if(self.searchIndex < len(self.travelList)):
+                        self.searchList = self.travelList[self.searchIndex]
+                    self.master.after(self.updateTime, self.doSearchInstruction)
+            else:
+                self.searchIndex = 0
+                self.executingInstruction = False
+                self.doAnimation = False
+                self.master.after(self.updateTime, self.getConsoleInstruction)
+            
+        else:
+            self.travelList = self.cityGraph.search()[:]
+            self.taxiNode = 0
+            self.searchList = self.travelList[self.searchIndex]
+            self.master.after(self.updateTime, self.getConsoleInstruction)
+            
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
