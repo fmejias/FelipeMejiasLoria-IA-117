@@ -513,6 +513,9 @@ class CityGraph:
         ##For the moment, Im going to use the BFS search algorithm
         self.BFS(destinationNode)
 
+        #Return the travel
+        return self.routeToTravel
+
     #This method is use to search all of the clients
     def search(self):
         areThereClients = self.isThereAClient()
@@ -608,12 +611,14 @@ class CityGraph:
         for i in range(0,self.rows):
             for j in range(0,self.columns):
                 if(i+1 < self.rows):
-                    if((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D")
+                    if((self.cityMatrix[i][j].getNodeValue() == "-" or
+                        self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D" or self.cityMatrix[i][j].getNodeValue() == " ")
                        and self.cityMatrix[i+1][j].getNodeType() == "block"):
                         self.cityMatrix[i][j].setBlockAsNeighbor()
                         self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i+1][j].getNodeValue())
                 elif(i-1 >= 0):
-                    if ((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D")
+                    if ((self.cityMatrix[i][j].getNodeValue() == "-" or
+                         self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D" or self.cityMatrix[i][j].getNodeValue() == " ")
                           and self.cityMatrix[i-1][j].getNodeType() == "block"):
                         self.cityMatrix[i][j].setBlockAsNeighbor()
                         self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i-1][j].getNodeValue())

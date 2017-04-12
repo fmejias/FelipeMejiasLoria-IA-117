@@ -180,28 +180,21 @@ class TaxiSimulationWindow:
         #This part select the according method to execute depends on the instruction inserted by the user
         if(len(self.actualInstruction) > 1 and self.executingInstruction == False):
             if(self.actualInstruction[1] == self.travelInstruction):
-                print("Entro aqui")
                 self.doTravelInstruction()
             elif(self.actualInstruction[1] == self.searchInstruction):
-                self.executingInstruction = True
                 self.doSearchInstruction()
             elif(self.actualInstruction[1] == self.showInstruction):
-                self.executingInstruction = True
                 self.doShowInstruction()
             elif(self.actualInstruction[1] == self.routeInstruction):
-                self.executingInstruction = True
                 self.doRouteInstruction()
             elif(self.actualInstruction[1] == self.randomClientsInstruction):
-                self.executingInstruction = True
                 self.doRandomClientsInstruction()
             elif(self.actualInstruction[1] == self.specificClientInstruction):
-                self.executingInstruction = True
                 self.doSpecificClientInstruction()
             elif(self.actualInstruction[1] == self.specificClientInstruction):
-                self.executingInstruction = True
                 self.doSpecificClientInstruction()
             elif(self.actualInstruction[1] == self.parkInstruction):
-                self.executingInstruction = True
+                print("Entro aqui")
                 self.doParkInstruction()
 
         #If the user dont insert nothing for the first time
@@ -293,27 +286,92 @@ class TaxiSimulationWindow:
             self.master.after(self.updateTime, self.doTravelInstruction)
             
          
-        
-    #This function is in charge of the taxi simulation
-    def taxiSimulation(self):
-        #Do the animation if is ok
-        if(self.doAnimation == True):
-            print()
+    #This function is in charge of doing the parking instruction
+    def doParkInstruction(self):
+        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        if(self.executingInstruction == False):
+            self.executingInstruction = True
+            #Do the park instruction, and save the travel in the travelList
+            print("Parquear taxi en: ", self.actualInstruction[2])
+            routeToTravel = self.cityGraph.parkTaxi(self.actualInstruction[2])
+            self.travelList = routeToTravel[:]
+            self.master.after(self.updateTime, self.doParkInstruction)
+        elif(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
+            self.doAnimation = True
+            self.updateTime = int(actualInstruction[2])
+            self.master.after(self.updateTime, self.doParkInstruction)
+        elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
+            self.doAnimation = False
+            self.master.after(self.updateTime, self.doParkInstruction)
+        elif(self.doAnimation == True):
+            #Do the animation
+            if(self.travelList != []):
+                i = self.travelList[0][0]
+                j = self.travelList[0][1]
+
+                #Initialize all of the variables
+                taxiX = 0
+                taxiY = 0
+
+                #This part check when to used old variables
+                if(self.taxiNode == 0):
+                    self.taxiNode = self.cityGraph.searchTaxiNode()
+                    taxiX = self.taxiNode.getX()
+                    taxiY = self.taxiNode.getY()
+                else:
+                    taxiX = self.oldCoordinates[0]
+                    taxiY = self.oldCoordinates[1]
+                
+                #Resize the image with the size of the square
+                displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
+                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                frame.grid(row=taxiX, column=taxiY)
+                
+                #Create the Label and add it to the List of Labels
+                label = Label(frame, image = displayImage)
+                label.image = displayImage
+                label.place(x=0,y=0)
+
+                #Add the Label to the matrix
+                self.matrixOfLabels[taxiX][taxiY] = label
+
+                #Resize the image with the size of the square
+                displayImage = self.resizeImage("no", "D", self.widthOfEachFrame, self.heightOfEachFrame)
+                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                frame.grid(row=i, column=j)
+                
+                #Create the Label and add it to the List of Labels
+                label = Label(frame, image = displayImage)
+                label.image = displayImage
+                label.place(x=0,y=0)
+
+                #Add the Label to the matrix
+                self.matrixOfLabels[i][j] = label
+
+                #Save the old coordinates
+                self.oldCoordinates = [i,j]
+
+                #Delete an item of the list
+                del self.travelList[0]
+
+                #Repeat the function with this timer
+                self.master.after(self.updateTime, self.doParkInstruction)
+                
+            #If the taxi get to its destination
+            else:
+                self.executingInstruction = False
+                self.doAnimation = False
+                self.cityGraph.updateInitialAndFinalValue() #Update the initial and the final node value
+                self.master.after(self.updateTime, self.getConsoleInstruction)
+            
         else:
-            self.master.after(self.updateTime, self.doTravelInstruction)
+            self.master.after(self.updateTime, self.doParkInstruction)
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
     master = Tk()#Create the principle window
     master.wm_title("Taxi Simulation") #Add a title to the window
     taxiSimulationWindow = TaxiSimulationWindow(master) #Add the taxi simulation frame to the principle window
-
-    #This is used to build the City Graph
-#    cityGraph = CityObjects.prueba(taxiSimulationWindow.city) #This returns the city graph
-#    destinationNode = cityGraph.searchNodeByValue("B") #This is going to be the destination node
-#    cityGraph.DFS(destinationNode) #This is the search algorithm
-#    cityGraph.printRoute() #This function print the route
-    
     master.geometry("1100x650") #Set the size of the root
     master.geometry("+0+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
