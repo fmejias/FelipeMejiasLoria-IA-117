@@ -361,8 +361,15 @@ class CityGraph:
         #12, then build the path
         self.buildTravel(destinationNode)
 
+        #13, reset all of the fathers
+        self.resetFatherNodes()
+
+        #14, reset all the nodes as not visited
+        self.setNodesAsNotVisited()
+
     #This method is in charge of perform the DFS search
     def DFS(self, destinationNode):
+        
         #For the beginning, I use this
         self.haveBlockAsNeighbor()
         
@@ -421,14 +428,14 @@ class CityGraph:
 
     #This method is in charge of set all the nodes as not visited
     def setNodesAsNotVisited(self):
-        for i in (0,self.rows):
-            for j in (0,self.columns):
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
                 self.cityMatrix[i][j].resetVisit()
 
     #This method is in charge of set all the nodes as not visited
     def resetFatherNodes(self):
-        for i in (0,self.rows):
-            for j in (0,self.columns):
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
                 self.cityMatrix[i][j].setFather(0)
 
     #This method is in charge of search any client
@@ -543,9 +550,6 @@ class CityGraph:
         ##For the moment, Im going to use the BFS search algorithm
         self.BFS(destinationNode)
 
-        #Print the travel
-        self.printRoute()
-
         #Return the travel
         return self.routeToTravel
 
@@ -604,12 +608,12 @@ class CityGraph:
         for i in range(0,self.rows):
             for j in range(0,self.columns):
                 if(i+1 < self.rows):
-                    if((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
+                    if((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D")
                        and self.cityMatrix[i+1][j].getNodeType() == "block"):
                         self.cityMatrix[i][j].setBlockAsNeighbor()
                         self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i+1][j].getNodeValue())
                 elif(i-1 >= 0):
-                    if ((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O")
+                    if ((self.cityMatrix[i][j].getNodeValue() == "-" or self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D")
                           and self.cityMatrix[i-1][j].getNodeType() == "block"):
                         self.cityMatrix[i][j].setBlockAsNeighbor()
                         self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i-1][j].getNodeValue())
@@ -646,6 +650,18 @@ class CityGraph:
             print("Nodo visitado-> x: ", self.routeToTravel[i][0])
             print("Nodo visitado-> y: ", self.routeToTravel[i][1])
             print()
+
+    #This method update the initial node and final node value of the matrix
+    def updateInitialAndFinalValue(self):
+        if(len(self.routeToTravel) > 1):
+            initialNodeCoordinates = self.searchTaxiNode()
+            finalNodeCoordinates = self.routeToTravel[len(self.routeToTravel)-1]
+
+            #Update initial node value
+            self.cityMatrix[initialNodeCoordinates.getX()][initialNodeCoordinates.getY()].setNodeValue(" ")
+
+            #Update final node value
+            self.cityMatrix[finalNodeCoordinates[0]][finalNodeCoordinates[1]].setNodeValue("D")
 
 
 #This method return an CityGraph Object

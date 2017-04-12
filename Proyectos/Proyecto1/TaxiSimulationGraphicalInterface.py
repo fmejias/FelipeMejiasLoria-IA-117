@@ -19,6 +19,9 @@ import ConsoleGraphicalInterface
 #Import of the module CityObjects to create the City Graph
 import CityObjects
 
+#Import the module to copy list
+import copy
+
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -167,11 +170,17 @@ class TaxiSimulationWindow:
 
     #This function is in charge of get the instruction from the Console Window every updateTime
     def getConsoleInstruction(self):
-        self.actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
 
+        #This is to not assign animar as an instruction
+        instruction = ConsoleGraphicalInterface.returnInstruction().split()
+        if(len(instruction) > 1):
+            if(instruction[1] != self.animateInstruction):
+                self.actualInstruction = instruction #Get a list with the strings of the instruction
+                
         #This part select the according method to execute depends on the instruction inserted by the user
         if(len(self.actualInstruction) > 1 and self.executingInstruction == False):
             if(self.actualInstruction[1] == self.travelInstruction):
+                print("Entro aqui")
                 self.doTravelInstruction()
             elif(self.actualInstruction[1] == self.searchInstruction):
                 self.executingInstruction = True
@@ -179,9 +188,6 @@ class TaxiSimulationWindow:
             elif(self.actualInstruction[1] == self.showInstruction):
                 self.executingInstruction = True
                 self.doShowInstruction()
-            elif(self.actualInstruction[1] == self.animateInstruction):
-                self.executingInstruction = True
-                self.doAnimateInstruction()
             elif(self.actualInstruction[1] == self.routeInstruction):
                 self.executingInstruction = True
                 self.doRouteInstruction()
@@ -207,17 +213,18 @@ class TaxiSimulationWindow:
         
     #This function is in charge of doing the travel instruction
     def doTravelInstruction(self):
-        self.actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
         if(self.executingInstruction == False):
             self.executingInstruction = True
             #Do the travel instruction, and save the travel in the travelList
-            self.travelList = self.cityGraph.taxiTravel()
+            routeToTravel = self.cityGraph.taxiTravel()
+            self.travelList = routeToTravel[:]
             self.master.after(self.updateTime, self.doTravelInstruction)
-        elif(self.actualInstruction[1] == "animar" and self.doAnimation == False and self.actualInstruction[2] != "0"):
+        elif(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
             self.doAnimation = True
-            self.updateTime = int(self.actualInstruction[2])
+            self.updateTime = int(actualInstruction[2])
             self.master.after(self.updateTime, self.doTravelInstruction)
-        elif(self.actualInstruction[1] == "animar" and self.actualInstruction[2] == "0"):
+        elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
             self.doAnimation = False
             self.master.after(self.updateTime, self.doTravelInstruction)
         elif(self.doAnimation == True):
@@ -277,6 +284,9 @@ class TaxiSimulationWindow:
             #If the taxi get to its destination
             else:
                 self.executingInstruction = False
+                self.doAnimation = False
+                print("El taxi ha llegado a su destino")
+                self.cityGraph.updateInitialAndFinalValue() #Update the initial and the final node value
                 self.master.after(self.updateTime, self.getConsoleInstruction)
             
         else:
