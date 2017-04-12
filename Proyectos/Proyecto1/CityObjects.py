@@ -447,6 +447,7 @@ class CityGraph:
 
     #This method is in charge of adding N Random Clients to the City
     def addRandomClients(self,n):
+        listOfClientsCoordinates = []
         for i in range(0,n):
             listOfBlocks = self.searchAllBlocks() #Get a list with all of the blocks
             randomOriginIndex = randint(0,len(listOfBlocks)-1) #This is for the origin of the client
@@ -478,11 +479,15 @@ class CityGraph:
                 self.cityMatrix[clientX][clientY].setInitialBlockToClient(listOfBlocks[randomOriginIndex].getNodeValue())
                 self.cityMatrix[clientX][clientY].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
 
+            listOfClientsCoordinates.append([clientX,clientY])
+
+        return listOfClientsCoordinates
+
     #This method is in charge of adding a specific client to the City (c1 y c2 son Strings)
     def addSpecificClient(self,c1,c2):
         #Get initial and destination blocks
-        initialNode = searchNodeByValue(c1)
-        destinationNode = searchNodeByValue(c2)
+        initialNode = self.searchNodeByValue(c1)
+        destinationNode = self.searchNodeByValue(c2)
         
         #Establish the coordinates of the client
         clientX = initialNode.getX() - 1
@@ -505,6 +510,8 @@ class CityGraph:
             self.cityMatrix[clientX][clientY].setHaveAClient()
             self.cityMatrix[clientX][clientY].setInitialBlockToClient(initialNode.getNodeValue())
             self.cityMatrix[clientX][clientY].setDestinationBlockToClient(destinationNode.getNodeValue())
+
+        return [clientX,clientY]
     
     #This method is in charge of park the Taxi in C block, C is a string
     def parkTaxi(self,c):

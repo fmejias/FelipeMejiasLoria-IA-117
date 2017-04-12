@@ -49,6 +49,7 @@ class TaxiSimulationWindow:
         #This indicates to do the animation
         self.doAnimation = False
         self.updateTime = 1000
+        self.sameInstruction = False
 
         #List with the travel of the taxi
         self.travelList = []
@@ -81,6 +82,7 @@ class TaxiSimulationWindow:
         self.wallVerticalImage = Image.open("ProjectImages/barreraVertical2.png")
         self.streetImage = Image.open("ProjectImages/calle.png")
         self.waterImage = Image.open("ProjectImages/rio.png")
+        self.clientImage = Image.open("ProjectImages/cliente1.jpg")
         self.cuadraSinIdentificacionImage = Image.open("ProjectImages/cuadraSinIdentificacion.png")
         self.cuadraIdentificada = ""
         
@@ -141,6 +143,10 @@ class TaxiSimulationWindow:
             #Resize the image with the size of the square
             displayImage = self.waterImage.resize((width, height), Image.ANTIALIAS)
             displayImage = ImageTk.PhotoImage(displayImage)
+        elif(imageValue == "O"):
+            #Resize the image with the size of the square
+            displayImage = self.clientImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
         elif(esCuadra == "no" and imageValue == " "):
             #Resize the image with the size of the square
             displayImage = self.streetImage.resize((width, height), Image.ANTIALIAS)
@@ -174,11 +180,15 @@ class TaxiSimulationWindow:
         #This is to not assign animar as an instruction
         instruction = ConsoleGraphicalInterface.returnInstruction().split()
         if(len(instruction) > 1):
-            if(instruction[1] != self.animateInstruction):
+            if(instruction[1] != self.animateInstruction and instruction != self.actualInstruction):
                 self.actualInstruction = instruction #Get a list with the strings of the instruction
+                self.sameInstruction = False
+            elif (instruction == self.actualInstruction):
+                self.sameInstruction = True
+                
                 
         #This part select the according method to execute depends on the instruction inserted by the user
-        if(len(self.actualInstruction) > 1 and self.executingInstruction == False):
+        if(len(self.actualInstruction) > 1 and self.executingInstruction == False and self.sameInstruction == False):
             if(self.actualInstruction[1] == self.travelInstruction):
                 self.doTravelInstruction()
             elif(self.actualInstruction[1] == self.searchInstruction):
@@ -191,10 +201,7 @@ class TaxiSimulationWindow:
                 self.doRandomClientsInstruction()
             elif(self.actualInstruction[1] == self.specificClientInstruction):
                 self.doSpecificClientInstruction()
-            elif(self.actualInstruction[1] == self.specificClientInstruction):
-                self.doSpecificClientInstruction()
             elif(self.actualInstruction[1] == self.parkInstruction):
-                print("Entro aqui")
                 self.doParkInstruction()
 
         #If the user dont insert nothing for the first time
@@ -223,6 +230,12 @@ class TaxiSimulationWindow:
         elif(self.doAnimation == True):
             #Do the animation
             if(self.travelList != []):
+
+                #Update the update time
+                if(actualInstruction[1] == "animar" and actualInstruction[2] != "0"):
+                    self.updateTime = int(actualInstruction[2])
+                    
+                
                 i = self.travelList[0][0]
                 j = self.travelList[0][1]
 
@@ -278,9 +291,13 @@ class TaxiSimulationWindow:
             else:
                 self.executingInstruction = False
                 self.doAnimation = False
-                print("El taxi ha llegado a su destino")
                 self.cityGraph.updateInitialAndFinalValue() #Update the initial and the final node value
-                self.master.after(self.updateTime, self.getConsoleInstruction)
+
+                #This is to checkk if there is a different instruction
+                if(self.sameInstruction == False):
+                    self.master.after(self.updateTime, self.getConsoleInstruction)
+                else:
+                    self.master.after(self.updateTime, self.doTravelInstruction)
             
         else:
             self.master.after(self.updateTime, self.doTravelInstruction)
@@ -292,7 +309,6 @@ class TaxiSimulationWindow:
         if(self.executingInstruction == False):
             self.executingInstruction = True
             #Do the park instruction, and save the travel in the travelList
-            print("Parquear taxi en: ", self.actualInstruction[2])
             routeToTravel = self.cityGraph.parkTaxi(self.actualInstruction[2])
             self.travelList = routeToTravel[:]
             self.master.after(self.updateTime, self.doParkInstruction)
@@ -366,6 +382,54 @@ class TaxiSimulationWindow:
             
         else:
             self.master.after(self.updateTime, self.doParkInstruction)
+
+    #This function is in charge of doing the specific client instruction
+    def doSpecificClientInstruction(self):
+        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        if(self.executingInstruction == False):
+            #Do the specific client instruction, and save the travel in the travelList
+            clientCoordinates = self.cityGraph.addSpecificClient(self.actualInstruction[2], self.actualInstruction[3])
+            
+            #Resize the image with the size of the square
+            displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
+            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+            frame.grid(row=clientCoordinates[0], column=clientCoordinates[1])
+            
+            #Create the Label and add it to the List of Labels
+            label = Label(frame, image = displayImage)
+            label.image = displayImage
+            label.place(x=0,y=0)
+
+            #Add the Label to the matrix
+            self.matrixOfLabels[clientCoordinates[0]][clientCoordinates[1]] = label
+            self.master.after(self.updateTime, self.getConsoleInstruction)
+
+
+    #This function is in charge of doing the random clients instruction
+    def doRandomClientsInstruction(self):
+        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        if(self.executingInstruction == False):
+            #Do the specific client instruction, and save the travel in the travelList
+            clientsListCoordinates = self.cityGraph.addRandomClients(int(self.actualInstruction[2]))
+
+            for i in range(0,len(clientsListCoordinates)):
+                clientCoordinates = clientsListCoordinates[i]
+            
+                #Resize the image with the size of the square
+                displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
+                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+                frame.grid(row=clientCoordinates[0], column=clientCoordinates[1])
+                
+                #Create the Label and add it to the List of Labels
+                label = Label(frame, image = displayImage)
+                label.image = displayImage
+                label.place(x=0,y=0)
+
+                #Add the Label to the matrix
+                self.matrixOfLabels[clientCoordinates[0]][clientCoordinates[1]] = label
+                
+            self.master.after(self.updateTime, self.getConsoleInstruction)
+    
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
