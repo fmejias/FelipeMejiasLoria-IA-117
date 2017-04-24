@@ -10,6 +10,9 @@ import queue
 ###This import is necessary to generate random numbers
 from random import randint
 
+###This import is necessary to reorder an array for the a*
+from operator import itemgetter
+
 ##Import the copy module
 import copy
 
@@ -150,7 +153,7 @@ class CityNode:
 
     #This method set the distance of the node
     def setD(self, distance):
-        self.d = self.d + distance
+        self.d = distance
 
     #This method return the heuristic of the node
     def getH(self):
@@ -425,8 +428,147 @@ class CityGraph:
 
 
     #This method is in charge of perform the A*
-    def astar(self):
-        print("Realiza A*")
+    def astar(self, destinationNode):
+        #For the beginning, I use this
+        self.haveBlockAsNeighbor()
+        
+        #Search the taxi node
+        sourceNode = self.searchTaxiNode()
+
+        #Create the open list
+        openList = []
+
+        #Step 1: Add the sourceNode to the open list
+        openList.append(sourceNode)
+
+        #While the open list is not empty
+        while( openList != []):
+
+            #Step 2: Extract the first node from the open list
+            nodeFromOpenList = openList[0]
+            del openList[0] #Delete the item extracted from the openList
+
+            #Set the finish condition
+            if(nodeFromOpenList.getNodeValue() == destinationNode.getNodeValue()):
+                break
+
+            #Step 3: Set the fist node from the open list as visited
+            nodeFromOpenListX = nodeFromOpenList.getX()
+            nodeFromOpenListY = nodeFromOpenList.getY()
+            self.cityMatrix[nodeFromOpenListX][nodeFromOpenListY].setVisit()
+
+            #Step 4: Extract the adjacent list of the extracted node from the open list
+            adjacentNodesList = nodeFromOpenList.getAdjacentNodesList()
+
+            #Step 5: For all the adjacent nodes
+            for i in range(0, len(adjacentNodesList)):
+
+                #Step 6: Get the adjacent node
+                adjacentNodeX = adjacentNodesList[i][0]
+                adjacentNodeY = adjacentNodesList[i][1]
+                adjacentNode = self.searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
+ 
+                #Step 8: Recalculate factors
+                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or adjacentNode.getNodeType() == "block" or
+                                                          adjacentNode.getBlockAsNeighbor() == True)):
+
+                    #First: Calculate g(n)
+                    g = self.calculateG(nodeFromOpenList, adjacentNode)
+                    
+                    #Second: Calculate h(n)
+                    h = self.calculateH(nodeFromOpenList, destinationNode)
+
+                    #Third: Calculate f(n)
+                    f = g + h
+
+                    #Checks if the node is already in the adjacent list
+                    if(self.isTheNodeAlreadyInTheList(openList, adjacentNode) == True):
+                        if(f < adjacentNode.getCost()):
+                            #Fourth: Update f(n), g(n) and h(n)
+                            self.cityMatrix[adjacentNodeX][adjacentNodeY].setH(h)
+                            self.cityMatrix[adjacentNodeX][adjacentNodeY].setD(g)
+                            self.cityMatrix[adjacentNodeX][adjacentNodeY].setCost(f)
+                            self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromOpenList.getX(),nodeFromOpenList.getY()))
+
+                            #This instructions is use to assign the cost and reorder the list in a good way
+                            adjacentNode.setCost(f)
+
+                    #If the node is not in the adjacent list
+                    else:
+                        #Fourth: Update f(n), g(n) and h(n)
+                        self.cityMatrix[adjacentNodeX][adjacentNodeY].setH(h)
+                        self.cityMatrix[adjacentNodeX][adjacentNodeY].setD(g)
+                        self.cityMatrix[adjacentNodeX][adjacentNodeY].setCost(f)
+                        self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromOpenList.getX(),nodeFromOpenList.getY()))
+
+                        #This instructions is use to assign the cost and reorder the list in a good way
+                        adjacentNode.setCost(f)
+                    
+                        #11, Add the adjacentNode to the open list
+                        openList.append(adjacentNode)
+
+            #After go over all the adjacent nodes, reorder the list according the cost value
+            openList = self.reorderOpenList(openList)
+
+        #Then build the path
+        self.buildTravel(destinationNode)
+
+
+    #This method calculates g(n) for the a*
+    def calculateG(self,actualNode, adyacentNode):
+        adyacentNodeX = adyacentNode.getX()
+        adyacentNodeY = adyacentNode.getY()
+        actualNodeX = actualNode.getX()
+        actualNodeY = actualNode.getY()
+        g = abs(adyacentNodeX - actualNodeX) + abs(adyacentNodeY - actualNodeY)
+
+        return g
+
+    #This method calculates h(n) for the a*
+    def calculateH(self,actualNode, destinationNode):
+        destinationNodeX = destinationNode.getX()
+        destinationNodeY = destinationNode.getY()
+        actualNodeX = actualNode.getX()
+        actualNodeY = actualNode.getY()
+        h = abs(destinationNodeX - actualNodeX) + abs(destinationNodeY - actualNodeY)
+
+        return h
+
+    #This method reorder the list in an ascendent way for the a*
+    def reorderOpenList(self,openList):
+        listWithCostReorder = self.createAListWithAllCostValuesAscendent(openList)
+        newListReorder = []
+        for i in range(0, len(openList)):
+            index = listWithCostReorder[i][0]
+            node = openList[index]
+            newListReorder.append(node)
+
+        return newListReorder
+
+    #Auxiliar method for the reorderOpenList
+    def createAListWithAllCostValuesAscendent(self,openList):
+        listWithCostValuesOnly = []
+        for i in range(0, len(openList)):
+            cost = openList[i].getCost()
+            listWithCostValuesOnly.append((i, cost))
+
+        reorderList = sorted(listWithCostValuesOnly,key=itemgetter(1))    
+        return reorderList
+
+    #This method indicates if there is a node already in a list
+    def isTheNodeAlreadyInTheList(self, openList, node):
+        isAlready = False
+        for i in range(0, len(openList)):
+            nodeFromOpenList = openList[i]
+            nodeFromOpenListX = nodeFromOpenList.getX()
+            nodeFromOpenListY = nodeFromOpenList.getY()
+            nodeX = node.getX()
+            nodeY = node.getY()
+            if(nodeX == nodeFromOpenListX and nodeY == nodeFromOpenListY):
+                isAlready = True
+                break
+    
+        return isAlready
 
     #This method is in charge of set all the nodes as not visited
     def setNodesAsNotVisited(self):

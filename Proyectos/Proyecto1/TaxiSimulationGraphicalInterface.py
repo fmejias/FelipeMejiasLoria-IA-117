@@ -662,3 +662,12 @@ def displayTaxiSimulation():
     master.geometry("+0+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
+
+    ####A* Simulation####
+ #   city = MapParser.createMapParser()
+ #   graph = CityObjects.createCityGraph(city)
+ #   destinationNode = graph.searchNodeByValue("B")
+ #   graph.astar(destinationNode)
+ #   graph.printRoute()
+
+    
