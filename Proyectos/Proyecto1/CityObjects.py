@@ -614,10 +614,14 @@ class CityGraph:
     #This method is in charge of adding N Random Clients to the City
     def addRandomClients(self,n):
         listOfClientsCoordinates = []
+        taxiNode = self.searchTaxiNode()
         for i in range(0,n):
             listOfBlocks = self.searchAllBlocks() #Get a list with all of the blocks
             randomOriginIndex = randint(0,len(listOfBlocks)-1) #This is for the origin of the client
             randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
+
+            ###This is to verificate that the origin dont overwrite a taxi or another client
+            
 
             #This is to verificate that the destination and the origin are not the same
             while(randomOriginIndex == randomDestinationIndex):
@@ -630,22 +634,27 @@ class CityGraph:
             #Get the client node
             clientNode = self.cityMatrix[clientX][clientY]
 
-            if(clientNode.getNodeValue() != "O"):
+            if(clientNode.getNodeValue() != "O" and clientNode.getNodeValue() != "D"):
                 self.cityMatrix[clientX][clientY].setNodeValue("O")
                 self.cityMatrix[clientX][clientY].setHaveAClient()
                 self.cityMatrix[clientX][clientY].setInitialBlockToClient(listOfBlocks[randomOriginIndex].getNodeValue())
                 self.cityMatrix[clientX][clientY].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
+                listOfClientsCoordinates.append([clientX,clientY])
 
             else:
                 #Establish the coordinates of the client
                 clientX = listOfBlocks[randomOriginIndex].getX() + 1
                 clientY = listOfBlocks[randomOriginIndex].getY()
-                self.cityMatrix[clientX][clientY].setNodeValue("O")
-                self.cityMatrix[clientX][clientY].setHaveAClient()
-                self.cityMatrix[clientX][clientY].setInitialBlockToClient(listOfBlocks[randomOriginIndex].getNodeValue())
-                self.cityMatrix[clientX][clientY].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
+                #Get the client node
+                clientNode = self.cityMatrix[clientX][clientY]
+                if(clientNode.getNodeValue() != "O" and clientNode.getNodeValue() != "D"):
+                    self.cityMatrix[clientX][clientY].setNodeValue("O")
+                    self.cityMatrix[clientX][clientY].setHaveAClient()
+                    self.cityMatrix[clientX][clientY].setInitialBlockToClient(listOfBlocks[randomOriginIndex].getNodeValue())
+                    self.cityMatrix[clientX][clientY].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
+                    listOfClientsCoordinates.append([clientX,clientY])
 
-            listOfClientsCoordinates.append([clientX,clientY])
+            
 
         return listOfClientsCoordinates
 
@@ -727,6 +736,7 @@ class CityGraph:
         areThereClients = self.isThereAClient()
         self.taxiInitialPosition = self.searchTaxiNode()
         self.clientsList = []
+        self.searchList = []
         while(areThereClients != False):
 
             #Search for a client node
@@ -743,7 +753,7 @@ class CityGraph:
 
             #Calculate the path to go and pick up the client
             self.astar(clientNode)
-
+            
             #Append the path to the search list
             self.searchList.append(self.routeToTravel)
 

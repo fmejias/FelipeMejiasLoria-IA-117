@@ -537,12 +537,10 @@ class TaxiSimulationWindow:
         if(self.actualInstruction[2] == "on"):
             #Do the show instruction, and save the travel in the travelList
             allRoutes = self.cityGraph.showAllTaxiRoutes()[:]
-
             for i in range(0,len(allRoutes)):
                 for j in range(0, len(allRoutes[i])):
                     x = allRoutes[i][j][0]
                     y = allRoutes[i][j][1]
-                
                     #Resize the image with the size of the square
                     displayImage = self.resizeImage("no", "V", self.widthOfEachFrame, self.heightOfEachFrame)
                     frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
@@ -662,7 +660,8 @@ class TaxiSimulationWindow:
                   
                     self.searchIndex = self.searchIndex + 1
                     if(self.searchIndex < len(self.travelList)):
-                        self.searchList = self.travelList[self.searchIndex]
+                        
+                        self.searchList = self.travelList[self.searchIndex][:]
                     if(self.clientsList != []):
                         x = self.clientsList[0][0]
                         y = self.clientsList[0][1]
@@ -681,17 +680,17 @@ class TaxiSimulationWindow:
                         
                     self.master.after(self.updateTime, self.doSearchInstruction)
             else:
-                self.searchIndex = 0
                 self.executingInstruction = False
                 self.doAnimation = False
-
                 #Erase all of the clients and paint all of the walls again#
                 self.master.after(self.updateTime, self.getConsoleInstruction)
             
         else:
-            self.travelList = self.cityGraph.search()[:]
+            routeToTravel = self.cityGraph.search()
+            self.travelList = routeToTravel[:]
             self.taxiNode = 0
-            self.searchList = self.travelList[self.searchIndex]
+            self.searchIndex = 0
+            self.searchList = self.travelList[self.searchIndex][:]
             self.clientsList = self.cityGraph.clientsList[:]
             self.master.after(self.updateTime, self.getConsoleInstruction)
 
