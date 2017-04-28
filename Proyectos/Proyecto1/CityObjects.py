@@ -78,6 +78,9 @@ class CityNode:
             self.typeOfNode = "street"
         elif(value == "D"):
             self.typeOfNode = "taxi"
+    #    elif(value == "O"):
+    #        self.typeOfNode = "wall"
+    #        self.haveAClient = True
 
     #This method set the block as neighbor
     def setBlockAsNeighbor(self):
@@ -225,6 +228,7 @@ class CityGraph:
         self.routeTraveled = [] #Contains the route in progress of the taxi
         self.routeToTravel = [] #Contains the route from one block to another block
         self.searchList = [] #Contains all the path that the taxi have to visit to deliver the clients (Is a list of lists)
+        self.clientsList = [] #Contains all of the coordinates of the clients
         self.routesVisited = [] #Contains all of the routes visited by the taxi (Is a list of lists)
         self.actualNode = ""  #This is going to be the actual node of the taxi
         self.destinationNode = ""
@@ -235,6 +239,9 @@ class CityGraph:
 
         #Call the method in charge of create the city graph
         self.createCityGraph(len(city),len(city[0]))
+
+        ##This is necessary if there are clients already in the map from the beginning
+        self.addClientFromTheBeginningClient()
 
 
     #This method is in charge of create the city matrix as a graph
@@ -354,7 +361,8 @@ class CityGraph:
                 adjacentNode = self.searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
                 
                 #10, if the adjacent node is not visited, then set as visited
-                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or adjacentNode.getNodeType() == "block" or
+                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or
+                                                          (adjacentNode.getNodeType() == "block" and adjacentNode.getNodeValue()== destinationNode.getNodeValue())or
                                                           adjacentNode.getBlockAsNeighbor() == True)):
 
                     self.cityMatrix[adjacentNodeX][adjacentNodeY].setVisit()
@@ -415,7 +423,8 @@ class CityGraph:
                 adjacentNode = self.searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
                 
                 #10, if the adjacent node is not visited, then set as visited
-                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or adjacentNode.getNodeType() == "block" or
+                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or
+                                                          (adjacentNode.getNodeType() == "block" and adjacentNode.getNodeValue()== destinationNode.getNodeValue()) or
                                                           adjacentNode.getBlockAsNeighbor() == True)):
                     self.cityMatrix[adjacentNodeX][adjacentNodeY].setVisit()
                     self.cityMatrix[adjacentNodeX][adjacentNodeY].setFather((nodeFromStack.getX(),nodeFromStack.getY()))
@@ -425,6 +434,12 @@ class CityGraph:
 
         #12, then build the path
         self.buildTravel(destinationNode)
+
+        #13, reset all of the fathers
+        self.resetFatherNodes()
+
+        #14, reset all the nodes as not visited
+        self.setNodesAsNotVisited()
 
 
     #This method is in charge of perform the A*
@@ -469,7 +484,8 @@ class CityGraph:
                 adjacentNode = self.searchNodeByCoordinates(adjacentNodeX,adjacentNodeY)
  
                 #Step 8: Recalculate factors
-                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or adjacentNode.getNodeType() == "block" or
+                if(adjacentNode.isVisited() == False and (adjacentNode.getNodeType() == "street" or
+                                                          (adjacentNode.getNodeType() == "block" and adjacentNode.getNodeValue()== destinationNode.getNodeValue()) or
                                                           adjacentNode.getBlockAsNeighbor() == True)):
 
                     #First: Calculate g(n)
@@ -512,6 +528,12 @@ class CityGraph:
 
         #Then build the path
         self.buildTravel(destinationNode)
+
+        #13, reset all of the fathers
+        self.resetFatherNodes()
+
+        #14, reset all the nodes as not visited
+        self.setNodesAsNotVisited()
 
 
     #This method calculates g(n) for the a*
@@ -598,7 +620,7 @@ class CityGraph:
             randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
 
             #This is to verificate that the destination and the origin are not the same
-            while(randomOriginIndex != randomDestinationIndex):
+            while(randomOriginIndex == randomDestinationIndex):
                 randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
 
             #Establish the coordinates of the client
@@ -656,13 +678,36 @@ class CityGraph:
             self.cityMatrix[clientX][clientY].setDestinationBlockToClient(destinationNode.getNodeValue())
 
         return [clientX,clientY]
+
+    #This method is in charge of set the destination and origin of the nodes that are from the beginning of the map
+    def addClientFromTheBeginningClient(self):
+        #For the beginning, I use this
+        self.haveBlockAsNeighbor()
+
+        listOfBlocks = self.searchAllBlocks() #Get a list with all of the blocks
+
+        ##Go over the city to find all of the clients that are from the beginning
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue() == "O"):
+                    origin = self.cityMatrix[i][j].getBlockOfWall()
+                    self.cityMatrix[i][j].setInitialBlockToClient(origin)
+                    
+                    randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
+
+                    #This is to verificate that the destination and the origin are not the same
+                    while(origin == listOfBlocks[randomDestinationIndex].getNodeValue()):
+                        randomDestinationIndex = randint(0,len(listOfBlocks)-1) #This is for the destination of the client
+
+                    #Add the destination
+                    self.cityMatrix[i][j].setDestinationBlockToClient(listOfBlocks[randomDestinationIndex].getNodeValue())
     
     #This method is in charge of park the Taxi in C block, C is a string
     def parkTaxi(self,c):
         destinationNode = self.searchNodeByValue(c)
 
         ##For the moment, Im going to use the BFS search algorithm
-        self.BFS(destinationNode)
+        self.astar(destinationNode)
 
         #Return the travel
         return self.routeToTravel
@@ -681,10 +726,14 @@ class CityGraph:
     def search(self):
         areThereClients = self.isThereAClient()
         self.taxiInitialPosition = self.searchTaxiNode()
+        self.clientsList = []
         while(areThereClients != False):
 
             #Search for a client node
             clientNode = self.searchClientNode()
+
+            #Append the client coordinates
+            self.clientsList.append((clientNode.getX(),clientNode.getY()))
 
             #Get the destination block of that client
             destinationBlock = self.cityMatrix[clientNode.getX()][clientNode.getY()].getDestinationBlockOfTheClient()
@@ -693,7 +742,7 @@ class CityGraph:
             destinationNode = self.searchNodeByValue(destinationBlock)
 
             #Calculate the path to go and pick up the client
-            self.BFS(clientNode)
+            self.astar(clientNode)
 
             #Append the path to the search list
             self.searchList.append(self.routeToTravel)
@@ -702,13 +751,16 @@ class CityGraph:
             self.updateInitialAndFinalValue()
 
             #Then calculate the path to go and leave the client in its destiny
-            self.BFS(destinationNode)
+            self.astar(destinationNode)
 
             #Append the path to the search list
             self.searchList.append(self.routeToTravel)
 
             #Reset the client
-            self.cityMatrix[clientNode.getX()][clientNode.getY()].setNodeValue(" ")
+            self.cityMatrix[clientNode.getX()][clientNode.getY()].setNodeValue("-")
+            self.cityMatrix[clientNode.getX()][clientNode.getY()].resetHaveAClient()
+            self.cityMatrix[clientNode.getX()][clientNode.getY()].setNodeType("wall")
+            self.cityMatrix[clientNode.getX()][clientNode.getY()].client = Client()
 
             #Update the position of the taxi
             self.updateInitialAndFinalValue()
@@ -734,7 +786,7 @@ class CityGraph:
         destinationNode = randomBlock
 
         ##For the moment, Im going to use the BFS search algorithm
-        self.BFS(destinationNode)
+        self.astar(destinationNode)
 
         #Return the travel
         return self.routeToTravel
@@ -799,7 +851,7 @@ class CityGraph:
                        and self.cityMatrix[i+1][j].getNodeType() == "block"):
                         self.cityMatrix[i][j].setBlockAsNeighbor()
                         self.cityMatrix[i][j].setBlockToWall(self.cityMatrix[i+1][j].getNodeValue())
-                elif(i-1 >= 0):
+                if(i-1 >= 0):
                     if ((self.cityMatrix[i][j].getNodeValue() == "-" or
                          self.cityMatrix[i][j].getNodeValue() == "O" or self.cityMatrix[i][j].getNodeValue() == "D" or self.cityMatrix[i][j].getNodeValue() == " ")
                           and self.cityMatrix[i-1][j].getNodeType() == "block"):
@@ -815,13 +867,48 @@ class CityGraph:
                     blocks.append(self.cityMatrix[i][j])
         return blocks
 
+
     #This method is in charge of search any client
     def searchClientNode(self):
         for i in range(0,self.rows):
             for j in range(0,self.columns):
                 if(self.cityMatrix[i][j].getNodeValue() == "O"):
                     return self.cityMatrix[i][j]
-                    
+
+    #This method is in charge of return a list with the positions of the clients
+    def searchAllClients(self):
+        clientPositions = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue() == "O"):
+                    clientPositions.append((self.cityMatrix[i][j].getX(),self.cityMatrix[i][j].getY()))
+        return clientPositions
+
+    #This method is in charge of return a list with the positions of the walls
+    def searchAllWalls(self):
+        wallsPositions = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue() == "-"):
+                    wallsPositions.append((self.cityMatrix[i][j].getX(),self.cityMatrix[i][j].getY()))
+        return wallsPositions
+    
+    #This method is in charge of reset all clients
+    def resetAllClients(self):
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue() == "O"):
+                    self.cityMatrix[i][j].setNodeValue("-")
+                    self.cityMatrix[i][j].setNodeType("wall")
+                    self.cityMatrix[i][j].client = Client()
+                    self.cityMatrix[i][j].resetHaveAClient()
+
+    #This method is in charge of reset a client
+    def resetClient(self,x,y):
+        self.cityMatrix[x][y].setNodeValue("-")
+        self.cityMatrix[x][y].setNodeType("wall")
+        self.cityMatrix[x][y].client = Client()
+        self.cityMatrix[x][y].resetHaveAClient()
 
     #This method is in charge of tell if there are some clients
     def isThereAClient(self):
@@ -845,7 +932,7 @@ class CityGraph:
         if(len(self.routeToTravel) > 1):
             initialNodeCoordinates = self.searchTaxiNode()
             finalNodeCoordinates = self.routeToTravel[len(self.routeToTravel)-1]
-
+            
             #Update initial node value
             self.cityMatrix[initialNodeCoordinates.getX()][initialNodeCoordinates.getY()].setNodeValue(" ")
 

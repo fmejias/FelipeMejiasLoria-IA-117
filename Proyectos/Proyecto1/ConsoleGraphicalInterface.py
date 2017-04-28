@@ -44,18 +44,26 @@ class ConsoleWindow:
         self.label.place(x = 0, y = 0)
 
         #Here we create the initial entry
-        e1=Entry(self.frame, width=200, background = "Black", fg = "White")
+        e1=Entry(self.frame, width=200, background = "Black", fg = "White", insertbackground = "White")
         e1.place(x = self.x, y = self.y)
 
         #Insert initial text to the entry
         e1.delete(0, END)
         e1.insert(0, "> ")
 
+        #This instruction put the cursor of the entry after the >
+        e1.focus_set()
+
         #Update the actual entry
         self.actualEntry = e1
 
     #This method get the instruction when I press the Enter Key
     def setInstruction(self,event):
+
+        #This condition indicates if it has to start putting entries from the beginning
+        if(self.y == 560):
+            self.y = 0
+        
         #Update the y coordinate
         self.y = self.y + 20
 
@@ -63,12 +71,15 @@ class ConsoleWindow:
         self.instruction = self.actualEntry.get()
 
         #Here we create an entry
-        e=Entry(self.frame, width=200, background = "Black", fg = "White")
+        e=Entry(self.frame, width=200, background = "Black", fg = "White", insertbackground = "White")
         e.place(x = self.x, y = self.y)
 
         #Insert initial text to the entry
         e.delete(0, END)
         e.insert(0, "> ")
+
+        #This instruction put the cursor of the entry after the >
+        e.focus_set()
 
         #Update the actual entry
         self.actualEntry = e

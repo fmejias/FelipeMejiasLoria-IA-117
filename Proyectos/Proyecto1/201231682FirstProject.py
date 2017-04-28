@@ -13,12 +13,6 @@ import ConsoleGraphicalInterface
 #This import is necessary to call functions of the TaxiSimulationGraphicalInterface module
 import TaxiSimulationGraphicalInterface
 
-#Call the function in charge of display the console window
-#ConsoleGraphicalInterface.displayConsole()
-
-#Call the function in charge of display the taxi simulation window
-#TaxiSimulationGraphicalInterface.displayTaxiSimulation()
-
 #Here, we initialize the threads
 _thread.start_new_thread(TaxiSimulationGraphicalInterface.displayTaxiSimulation, ())
 _thread.start_new_thread(ConsoleGraphicalInterface.displayConsole, ())

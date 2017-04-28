@@ -148,6 +148,12 @@ class MapParser:
                 if( (i - 1 >= 0) and (i + 1 < len(self.city)) and (j-1 >= 0) and (j+1 < len(self.city[0]))):                    
                     if((self.city[i-1][j] == "-") and (self.city[i+1][j] == "-") and (self.city[i][j-1] == "|") and (self.city[i][j+1] == "|")):
                         self.cityForTkinter[i][j] = ["yes", self.city[i][j]]
+                    elif((self.city[i-1][j] == "O") and (self.city[i+1][j] == "O") and (self.city[i][j-1] == "|") and (self.city[i][j+1] == "|")):
+                        self.cityForTkinter[i][j] = ["yes", self.city[i][j]]
+                    elif((self.city[i-1][j] == "O") and (self.city[i+1][j] == "-") and (self.city[i][j-1] == "|") and (self.city[i][j+1] == "|")):
+                        self.cityForTkinter[i][j] = ["yes", self.city[i][j]]
+                    elif((self.city[i-1][j] == "-") and (self.city[i+1][j] == "O") and (self.city[i][j-1] == "|") and (self.city[i][j+1] == "|")):
+                        self.cityForTkinter[i][j] = ["yes", self.city[i][j]]
                     else:
                         self.cityForTkinter[i][j] = ["no", self.city[i][j]]
                 else:

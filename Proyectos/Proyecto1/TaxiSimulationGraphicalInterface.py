@@ -22,6 +22,9 @@ import CityObjects
 #Import the module to copy list
 import copy
 
+#Import of the module to play a sound
+import winsound
+
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -57,6 +60,9 @@ class TaxiSimulationWindow:
         #This variable is need it for the search instruction
         self.searchIndex = 0
         self.searchList = []
+        self.clientsList = []
+        self.p = 0
+        self.soundFilePath = "ProjectSounds/taxi_call.wav"
 
         #This indicates if there is an instruction executing at the time
         self.executingInstruction = False
@@ -449,10 +455,16 @@ class TaxiSimulationWindow:
 
             #Add the Label to the matrix
             self.matrixOfLabels[clientCoordinates[0]][clientCoordinates[1]] = label
-
+        
         #When the instruction is done
         self.executingInstruction = False
         self.doAnimation = False
+
+        ###If N = 0
+        if(int(self.actualInstruction[2]) == 0):
+            self.cityGraph.resetAllClients()
+            ##Paint all the walls if they were erased for the instruction##
+            self.paintWalls() 
             
         self.master.after(self.updateTime, self.getConsoleInstruction)
 
@@ -484,7 +496,9 @@ class TaxiSimulationWindow:
 
                 #Delete an item of the list
                 del routeTravel[0]
-                
+
+            ##Paint all the taxis, and clients if they were erased for the instruction##
+            self.paintClients()   
             self.master.after(self.updateTime, self.getConsoleInstruction)
 
         elif(self.actualInstruction[2] == "off"):
@@ -510,7 +524,10 @@ class TaxiSimulationWindow:
 
                 #Delete an item of the list
                 del routeTravel[0]
-                
+
+            ##Paint all the taxis, and clients if they were erased for the instruction##
+            self.paintClients()
+            self.paintWalls()
             self.master.after(self.updateTime, self.getConsoleInstruction)
 
 
@@ -538,7 +555,10 @@ class TaxiSimulationWindow:
 
                     #Add the Label to the matrix
                     self.matrixOfLabels[x][y] = label
-                
+
+            ##Paint all the taxis, and clients if they were erased for the instruction##
+            self.paintClients()
+            self.paintTaxi()
             self.master.after(self.updateTime, self.getConsoleInstruction)
 
         elif(self.actualInstruction[2] == "off"):
@@ -562,15 +582,19 @@ class TaxiSimulationWindow:
 
                     #Add the Label to the matrix
                     self.matrixOfLabels[x][y] = label
-                
+
+            ##Paint all the taxis, and clients if they were erased for the instruction##
+            self.paintClients()
+            self.paintWalls()
+            self.paintTaxi()    
             self.master.after(self.updateTime, self.getConsoleInstruction)
 
     #This function is in charge of perform the search for clients instruction
     def doSearchInstruction(self):
         actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-
         if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
             self.doAnimation = True
+            self.p = 0
             self.updateTime = int(actualInstruction[2])
             self.master.after(self.updateTime, self.doSearchInstruction)
         elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
@@ -639,19 +663,117 @@ class TaxiSimulationWindow:
                     self.searchIndex = self.searchIndex + 1
                     if(self.searchIndex < len(self.travelList)):
                         self.searchList = self.travelList[self.searchIndex]
+                    if(self.clientsList != []):
+                        x = self.clientsList[0][0]
+                        y = self.clientsList[0][1]
+                        if(self.oldCoordinates[0]+1 == x and self.oldCoordinates[1] == y):
+                            self.cityGraph.resetClient(x,y)
+                            self.paintWall(x,y)
+                            self.p = 1
+                            winsound.PlaySound(self.soundFilePath, winsound.SND_FILENAME)
+                            del self.clientsList[0]
+                        elif(self.oldCoordinates[0]-1 == x and self.oldCoordinates[1] == y):
+                            self.cityGraph.resetClient(x,y)
+                            self.paintWall(x,y)
+                            self.p = 1
+                            winsound.PlaySound(self.soundFilePath, winsound.SND_FILENAME)
+                            del self.clientsList[0]
+                        
                     self.master.after(self.updateTime, self.doSearchInstruction)
             else:
                 self.searchIndex = 0
                 self.executingInstruction = False
                 self.doAnimation = False
+
+                #Erase all of the clients and paint all of the walls again#
                 self.master.after(self.updateTime, self.getConsoleInstruction)
             
         else:
             self.travelList = self.cityGraph.search()[:]
             self.taxiNode = 0
             self.searchList = self.travelList[self.searchIndex]
+            self.clientsList = self.cityGraph.clientsList[:]
             self.master.after(self.updateTime, self.getConsoleInstruction)
+
+
+    ##This method paint all of the walls again
+    def paintWalls(self):
+        wallsPositions = self.cityGraph.searchAllWalls()[:]
+        for i in range(0,len(wallsPositions)):
+            x = wallsPositions[i][0]
+            y = wallsPositions[i][1]
+
+            #Paint the image of the wall
             
+            #Resize the image with the size of the square
+            displayImage = self.resizeImage("no", "-", self.widthOfEachFrame, self.heightOfEachFrame)
+            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+            frame.grid(row=x, column=y)
+            
+            #Create the Label and add it to the List of Labels
+            label = Label(frame, image = displayImage)
+            label.image = displayImage
+            label.place(x=0,y=0)
+
+            #Add the Label to the matrix
+            self.matrixOfLabels[x][y] = label
+
+    ##This method paint all of the clients again
+    def paintClients(self):
+        clientsPositions = self.cityGraph.searchAllClients()[:]
+        for i in range(0,len(clientsPositions)):
+            x = clientsPositions[i][0]
+            y = clientsPositions[i][1]
+
+            #Paint the image of the wall
+            
+            #Resize the image with the size of the square
+            displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
+            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+            frame.grid(row=x, column=y)
+            
+            #Create the Label and add it to the List of Labels
+            label = Label(frame, image = displayImage)
+            label.image = displayImage
+            label.place(x=0,y=0)
+
+            #Add the Label to the matrix
+            self.matrixOfLabels[x][y] = label
+
+    #This method paint a wall
+    def paintWall(self,x,y):
+        #Paint the image of the wall
+            
+        #Resize the image with the size of the square
+        displayImage = self.resizeImage("no", "-", self.widthOfEachFrame, self.heightOfEachFrame)
+        frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+        frame.grid(row=x, column=y)
+        
+        #Create the Label and add it to the List of Labels
+        label = Label(frame, image = displayImage)
+        label.image = displayImage
+        label.place(x=0,y=0)
+
+        #Add the Label to the matrix
+        self.matrixOfLabels[x][y] = label
+             
+    ##This method paint the taxi again
+    def paintTaxi(self):
+        x = self.cityGraph.searchTaxiNode().getX()
+        y = self.cityGraph.searchTaxiNode().getY()
+        
+        #Resize the image with the size of the square
+        displayImage = self.resizeImage("no", "D", self.widthOfEachFrame, self.heightOfEachFrame)
+        frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+        frame.grid(row=x, column=y)
+        
+        #Create the Label and add it to the List of Labels
+        label = Label(frame, image = displayImage)
+        label.image = displayImage
+        label.place(x=0,y=0)
+
+        #Add the Label to the matrix
+        self.matrixOfLabels[x][y] = label            
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
