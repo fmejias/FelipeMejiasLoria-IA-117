@@ -225,7 +225,7 @@ class TaxiSimulationWindow:
 
         #If the user dont insert nothing for the first time
         else:
-           # if(self.executingInstruction == False):
+           
             self.master.after(self.updateTime, self.getConsoleInstruction)    
 
 
