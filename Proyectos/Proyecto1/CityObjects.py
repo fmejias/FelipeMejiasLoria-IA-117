@@ -716,7 +716,8 @@ class CityGraph:
         destinationNode = self.searchNodeByValue(c)
 
         ##For the moment, Im going to use the BFS search algorithm
-        self.astar(destinationNode)
+      #  self.astar(destinationNode)
+        self.DFS(destinationNode)
 
         #Return the travel
         return self.routeToTravel
