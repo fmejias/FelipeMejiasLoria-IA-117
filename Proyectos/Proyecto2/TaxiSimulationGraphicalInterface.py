@@ -112,8 +112,47 @@ class TaxiSimulationWindow:
         #Here, we call the function in charge of build the city
         self.buildCity()
 
+        #Buildings information frame
+        self.buildingsInformationFrame = Frame(self.master, width=260, height=600, background="peru")
+        self.buildingsInformationFrame.place(x=1085, y = 0)
+
+        self.buttonBuildingInformation = Button(self.buildingsInformationFrame, text="Horarios en los edificios", width= 25,
+                                                height = 1, bg= "#A6420B",fg='white',font = ('Kalinga','12'))
+
+        self.buttonBuildingInformation.place(x=10,y=5)
+
         #This instruction is in constant review for the instruction of the console
         #self.getConsoleInstruction()
+        self.createBuildingsInformation()
+
+
+    #This method is in charge of adding the buildings information(Search for all of the buildings and append a new frame to that board)
+    def createBuildingsInformation(self):
+        
+        #Create the new building frame
+        buildingInformation1 = Frame(self.buildingsInformationFrame, width=250, height=150, background="moccasin")
+        buildingInformation1.place(x=5, y = 60)
+
+        #Image information
+        buildingImage = Image.open("ProjectImages/building1.png")
+        displayImage = ImageTk.PhotoImage(buildingImage)
+        
+
+        #Label for the frame
+        labelTitle = Label(buildingInformation1, text="Edificio 1", width= 10,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+        labelTitle.grid(row=0, column = 0)
+
+        labelOut = Label(buildingInformation1, text="Salida: 9:00 am", width= 15,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+        labelOut.grid(row=0,column=1)
+
+        labelImage = Label(buildingInformation1, image=displayImage, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+        labelImage.image = displayImage
+        labelImage.grid(row=1, column = 0)
+
+        labelIn = Label(buildingInformation1, text="Llegada: 8:00 pm", width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+        labelIn.grid(row=1,column=1)
+
+        
 
     #This method is in charge of build the city
     def buildCity(self):
@@ -787,7 +826,7 @@ def displayTaxiSimulation():
     master = Tk()#Create the principle window
     master.wm_title("Taxi Simulation") #Add a title to the window
     taxiSimulationWindow = TaxiSimulationWindow(master) #Add the taxi simulation frame to the principle window
-    master.geometry("1100x600") #Set the size of the root
+    master.geometry("1350x600") #Set the size of the root
     master.geometry("+0+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
