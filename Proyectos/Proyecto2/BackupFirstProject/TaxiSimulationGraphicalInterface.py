@@ -25,9 +25,6 @@ import copy
 #Import of the module to play a sound
 import winsound
 
-#Import of the module to implement a delay for the timer
-import time
-
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -35,8 +32,7 @@ import time
 # .
 ##########################################################################################################
 class TaxiSimulationWindow:
-    def __init__(self, master): 
-        
+    def __init__(self, master):
         #Establish the width and height of the First Window
         self.width = 1100
         self.height = 600
@@ -109,11 +105,19 @@ class TaxiSimulationWindow:
         self.widthOfEachFrame = 0
         self.heightOfEachFrame = 0
 
+        #This is going to be the Frame with the Button and Label that shows: Calculating route or Taxi on the way!
+        self.taxiStateFrame = Frame(self.master, width=self.width, height=(self.height + 50) - (self.height), background="White")
+        self.taxiStateFrame.place(x=0,y=(self.height))
+        self.taxiStateButton = Button(self.taxiStateFrame, text="Taxi State",width= 20, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken')
+        self.taxiStateButton.place(x=10,y=5)
+        self.taxiStateLabel=Label(self.taxiStateFrame,width= 50, height = 1, bg= "Black",text='Welcome to the Taxi Simulation',fg='White',font = ('Kalinga','16'),relief='sunken')
+        self.taxiStateLabel.place(x=350,y=10)
+
         #Here, we call the function in charge of build the city
         self.buildCity()
 
         #This instruction is in constant review for the instruction of the console
-        #self.getConsoleInstruction()
+        self.getConsoleInstruction()
 
     #This method is in charge of build the city
     def buildCity(self):
@@ -136,6 +140,7 @@ class TaxiSimulationWindow:
 
                 #Add the Label to the matrix
                 self.matrixOfLabels[i][j] = label
+                
         
     #This method return the image resize
     def resizeImage(self,esCuadra,imageValue,width,height):
@@ -774,8 +779,16 @@ def displayTaxiSimulation():
     master = Tk()#Create the principle window
     master.wm_title("Taxi Simulation") #Add a title to the window
     taxiSimulationWindow = TaxiSimulationWindow(master) #Add the taxi simulation frame to the principle window
-    master.geometry("1100x600") #Set the size of the root
+    master.geometry("1100x650") #Set the size of the root
     master.geometry("+0+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
 
+    ####A* Simulation####
+ #   city = MapParser.createMapParser()
+ #   graph = CityObjects.createCityGraph(city)
+ #   destinationNode = graph.searchNodeByValue("B")
+ #   graph.astar(destinationNode)
+ #   graph.printRoute()
+
+    

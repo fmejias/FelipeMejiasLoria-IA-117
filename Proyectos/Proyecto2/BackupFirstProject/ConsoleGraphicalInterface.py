@@ -21,10 +21,6 @@ consoleWindow = ""
 class ConsoleWindow:
     def __init__(self, master):
 
-        #####Variables need it for the timer ######
-        self.timer = [0, 0, 0] # Our time structure [min, sec, centsec]
-        self.pattern = '{0:02d}:{1:02d}:{2:02d}' # The format is padding all the
-
         #Initialize the instruction variable
         self.instruction = ""
 
@@ -37,64 +33,70 @@ class ConsoleWindow:
 
         #Set the master as the root
         self.master = master
+        self.master.bind('<Return>', self.setInstruction) #This is use to get the instruction when I pressed Enter key
 
         #Here, we create a frame
-        self.frame = Frame(self.master, width=1100, height=50, background="Black")
+        self.frame = Frame(self.master, width=200, height=600, background="Black")
         self.frame.pack()
 
-        self.taxiClockButton = Button(self.frame, text="Clock",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken')
-        self.taxiClockButton.place(x=10,y=5)
-        self.timeLabel=Label(self.frame,width= 10, height = 1, bg= "Black",text="00:00:00",fg='White',font = ('Kalinga','20'),relief='sunken')
-        self.timeLabel.place(x=220,y=5)
-        self.stopTimeButton = Button(self.frame, text="Detener",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken')
-        self.stopTimeButton.place(x=630,y=5)
-        self.startTimeButton = Button(self.frame, text="Iniciar",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken')
-        self.startTimeButton.place(x=830,y=5)
-        self.forwardTimeButton = Button(self.frame, text="Adelantar hora",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken')
-        self.forwardTimeButton.place(x=430,y=5)
+        #This label is used to set the title= "Console Window"
+        self.label = Label(self.frame , text = "Console Window" , font = ("Helvetica",12), background = "Black", fg = "White")
+        self.label.place(x = 0, y = 0)
 
-        ##Call the clock function
-        self.update_time()
+        #Here we create the initial entry
+        e1=Entry(self.frame, width=200, background = "Black", fg = "White", insertbackground = "White")
+        e1.place(x = self.x, y = self.y)
 
-    #This method updates the time label
-    def update_time(self):
+        #Insert initial text to the entry
+        e1.delete(0, END)
+        e1.insert(0, "> ")
 
-        #Increment the seconds of the timer
-        self.timer[2] += 1
+        #This instruction put the cursor of the entry after the >
+        e1.focus_set()
 
-        #Update the seconds, minutes and hours
-        if (self.timer[2] >= 60):
-            self.timer[1] += 1
-            self.timer[2] = 0
-        if (self.timer[1] >= 60):
-            self.timer[0] += 1
-            self.timer[1] = 0
-        if (self.timer[0] >= 24):
-            self.timer[0] = 0
+        #Update the actual entry
+        self.actualEntry = e1
 
-        # We create our time string here
-        timeString = self.pattern.format(self.timer[0], self.timer[1], self.timer[2])
+    #This method get the instruction when I press the Enter Key
+    def setInstruction(self,event):
 
-        # Update the time
-        self.timeLabel.configure(text=timeString)
-
-        #Call the update function again
-        self.master.after(1000, self.update_time)
+        #This condition indicates if it has to start putting entries from the beginning
+        if(self.y == 560):
+            self.y = 0
         
+        #Update the y coordinate
+        self.y = self.y + 20
+
+        #Get the actual instruction
+        self.instruction = self.actualEntry.get()
+
+        #Here we create an entry
+        e=Entry(self.frame, width=200, background = "Black", fg = "White", insertbackground = "White")
+        e.place(x = self.x, y = self.y)
+
+        #Insert initial text to the entry
+        e.delete(0, END)
+        e.insert(0, "> ")
+
+        #This instruction put the cursor of the entry after the >
+        e.focus_set()
+
+        #Update the actual entry
+        self.actualEntry = e
         
     #This method return the instruction
     def getInstruction(self):
-        return ""
+        return self.instruction
 
 #This function display the console
 def displayConsole():
     global instruction #Declaration of the global variable instruction
     global consoleWindow #Declaration of the global Console Window object
     master = Tk()#Create the principle window
-    master.wm_title("Clock") #Add a title to the window
+    master.wm_title("Console Window") #Add a title to the window
     consoleWindow = ConsoleWindow(master) #Add the console frame to the principle window
-    master.geometry("1100x50") #Set the size of the root
-    master.geometry("+0+638") #Set the position of the root on the screen
+    master.geometry("200x600") #Set the size of the root
+    master.geometry("+1100+10") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
 

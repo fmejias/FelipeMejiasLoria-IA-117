@@ -7,11 +7,13 @@
 #This import is need it to use the _thread module
 import _thread
 
-#This import is necessary to call functions of the TaxiSimulationGraphicalInterface module
-import TaxiSimulationGraphicalInterface
+#This import is necessary to call functions of the ConsoleGraphicalInterface module
 import ConsoleGraphicalInterface
 
-#Here, we initialize the main thread
+#This import is necessary to call functions of the TaxiSimulationGraphicalInterface module
+import TaxiSimulationGraphicalInterface
+
+#Here, we initialize the threads
 _thread.start_new_thread(TaxiSimulationGraphicalInterface.displayTaxiSimulation, ())
 _thread.start_new_thread(ConsoleGraphicalInterface.displayConsole, ())
 
