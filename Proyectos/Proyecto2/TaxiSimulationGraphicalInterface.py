@@ -13,8 +13,8 @@ from PIL import ImageTk, Image
 #Import from the MapParser module the city matrix
 import MapParser
 
-#Import of the module ConsoleGraphicalInterface to get the actual instruction
-import ConsoleGraphicalInterface
+#Import of the module TimerGraphicalInterface to get the actual instruction
+import TimerGraphicalInterface
 
 #Import of the module CityObjects to create the City Graph
 import CityObjects
@@ -191,7 +191,9 @@ class TaxiSimulationWindow:
     def getConsoleInstruction(self):
 
         #This is to not assign animar as an instruction
-        instruction = ConsoleGraphicalInterface.returnInstruction().split()
+        #instruction = ConsoleGraphicalInterface.returnInstruction().split()
+        instruction = ""
+        
         if(len(instruction) > 1):
             if(instruction[1] != self.animateInstruction and instruction != self.actualInstruction):
                 self.actualInstruction = instruction #Get a list with the strings of the instruction
@@ -227,7 +229,8 @@ class TaxiSimulationWindow:
         
     #This function is in charge of doing the travel instruction
     def doTravelInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
         self.routeAlreadyExecute = False
         if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
             self.doAnimation = True
@@ -320,8 +323,9 @@ class TaxiSimulationWindow:
          
     #This function is in charge of doing the parking instruction
     def doParkInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-
+       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
+        
         if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
             self.doAnimation = True
             self.updateTime = int(actualInstruction[2])
@@ -402,7 +406,9 @@ class TaxiSimulationWindow:
 
     #This function is in charge of doing the specific client instruction
     def doSpecificClientInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+      #  actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
+
         self.routeAlreadyExecute = False
         
         #Do the specific client instruction, and save the travel in the travelList
@@ -429,7 +435,9 @@ class TaxiSimulationWindow:
 
     #This function is in charge of doing the random clients instruction
     def doRandomClientsInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
+        
         self.routeAlreadyExecute = False
         
         #Do the specific client instruction, and save the travel in the travelList
@@ -465,7 +473,9 @@ class TaxiSimulationWindow:
 
     #This function is in charge of doing the route instruction
     def doRouteInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+      #  actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
+        
         self.routeAlreadyExecute = True
         if(self.actualInstruction[2] == "on"):
             #Do the route instruction, and save the travel in the travelList
@@ -528,7 +538,9 @@ class TaxiSimulationWindow:
 
     #This function is in charge of doing the show instruction
     def doShowInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
+
         if(self.actualInstruction[2] == "on"):
             #Do the show instruction, and save the travel in the travelList
             allRoutes = self.cityGraph.showAllTaxiRoutes()[:]
@@ -584,7 +596,8 @@ class TaxiSimulationWindow:
 
     #This function is in charge of perform the search for clients instruction
     def doSearchInstruction(self):
-        actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+      #  actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
+        actualInstruction = ["a", "a", ""]
         if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
             self.doAnimation = True
             self.p = 0
