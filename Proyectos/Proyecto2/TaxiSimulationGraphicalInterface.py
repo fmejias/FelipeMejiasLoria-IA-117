@@ -92,9 +92,6 @@ class TaxiSimulationWindow:
 
         #Set all of the images
         self.taxiRightImage = Image.open("ProjectImages/taxiDerecha.png")
-        self.taxiLeftImage = Image.open("ProjectImages/taxiIzquierda.png")
-        self.taxiUpImage = Image.open("ProjectImages/taxiArriba.png")
-        self.taxiDownImage = Image.open("ProjectImages/taxiAbajo.png")
         self.wallHorizontalImage = Image.open("ProjectImages/barreraHorizontal2.png")
         self.wallVerticalImage = Image.open("ProjectImages/barreraVertical2.png")
         self.streetImage = Image.open("ProjectImages/calle.png")
@@ -102,7 +99,9 @@ class TaxiSimulationWindow:
         self.clientImage = Image.open("ProjectImages/cliente1.jpg")
         self.routeImage = Image.open("ProjectImages/ruta1.png")
         self.cuadraSinIdentificacionImage = Image.open("ProjectImages/cuadraSinIdentificacion.png")
+        self.buildingImage = ""
         self.cuadraIdentificada = ""
+        self.taxi = ""
         
         #Set the master as the root
         self.master = master
@@ -128,30 +127,43 @@ class TaxiSimulationWindow:
 
     #This method is in charge of adding the buildings information(Search for all of the buildings and append a new frame to that board)
     def createBuildingsInformation(self):
-        
-        #Create the new building frame
-        buildingInformation1 = Frame(self.buildingsInformationFrame, width=250, height=150, background="moccasin")
-        buildingInformation1.place(x=5, y = 60)
 
-        #Image information
-        buildingImage = Image.open("ProjectImages/building1.png")
-        displayImage = ImageTk.PhotoImage(buildingImage)
-        
+        #Get the list of buildings
+        buildingsList = self.cityGraph.searchAllBuildings()
 
-        #Label for the frame
-        labelTitle = Label(buildingInformation1, text="Edificio 1", width= 10,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
-        labelTitle.grid(row=0, column = 0)
+        #Initial coordinates for the frames
+        frameX = 5
+        frameY = 60
 
-        labelOut = Label(buildingInformation1, text="Salida: 9:00 am", width= 15,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
-        labelOut.grid(row=0,column=1)
+        #Iterate about all of the frames
+        for i in range(0,len(buildingsList)):
+            
+            #Create the new building frame
+            buildingInformation1 = Frame(self.buildingsInformationFrame, width=250, height=150, background="moccasin")
+            buildingInformation1.place(x=frameX, y = frameY)
 
-        labelImage = Label(buildingInformation1, image=displayImage, bg= "moccasin",fg='black',font = ('Kalinga','12'))
-        labelImage.image = displayImage
-        labelImage.grid(row=1, column = 0)
+            #Image information
+            buildingImage = Image.open("ProjectImages/" + "apartamento" + buildingsList[i] + ".png")
+            buildingImage = buildingImage.resize((80, 71), Image.ANTIALIAS)
+            buildingImage = ImageTk.PhotoImage(buildingImage)
+            
+            #Label for the frame
+            buildingName = "Edificio " + buildingsList[i]
+            labelTitle = Label(buildingInformation1, text=buildingName, width= 10,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelTitle.grid(row=0, column = 0)
 
-        labelIn = Label(buildingInformation1, text="Llegada: 8:00 pm", width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
-        labelIn.grid(row=1,column=1)
+            labelOut = Label(buildingInformation1, text="Salida: 9:00 am", width= 15,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelOut.grid(row=0,column=1)
 
+            labelImage = Label(buildingInformation1, image=buildingImage, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelImage.image = buildingImage
+            labelImage.grid(row=1, column = 0)
+
+            labelIn = Label(buildingInformation1, text="Llegada: 8:00 pm", width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelIn.grid(row=1,column=1)
+
+            #Update the coordinates of x and y of the new frame
+            frameY = frameY + 140
         
 
     #This method is in charge of build the city
@@ -203,17 +215,26 @@ class TaxiSimulationWindow:
             #Resize the image with the size of the square
             displayImage = self.streetImage.resize((width, height), Image.ANTIALIAS)
             displayImage = ImageTk.PhotoImage(displayImage)
-        elif(imageValue == "D"):
+        elif(imageValue.isdigit() == True):
             #Resize the image with the size of the square
-            displayImage = self.taxiRightImage.resize((width, height), Image.ANTIALIAS)
+            imagePath = "ProjectImages/" + "taxi" + imageValue + ".png"
+            self.taxi = Image.open(imagePath)
+            #Resize the image with the size of the square
+            displayImage = self.taxi.resize((width, height), Image.ANTIALIAS)
             displayImage = ImageTk.PhotoImage(displayImage)
         elif(esCuadra == "yes"):
             if(imageValue == " "):
                 #Resize the image with the size of the square
                 displayImage = self.cuadraSinIdentificacionImage.resize((width, height), Image.ANTIALIAS)
                 displayImage = ImageTk.PhotoImage(displayImage)
+            elif(imageValue.isupper() == True): #Is a letter => Building
+                imagePath = "ProjectImages/" + "apartamento" + imageValue + ".png"
+                self.cuadraIdentificada = Image.open(imagePath)
+                #Resize the image with the size of the square
+                displayImage = self.cuadraIdentificada.resize((width, height), Image.ANTIALIAS)
+                displayImage = ImageTk.PhotoImage(displayImage)
             else:
-                imagePath = "ProjectImages/" + imageValue + ".png"
+                imagePath = "ProjectImages/" + "trabajo" + imageValue + ".png"
                 self.cuadraIdentificada = Image.open(imagePath)
                 #Resize the image with the size of the square
                 displayImage = self.cuadraIdentificada.resize((width, height), Image.ANTIALIAS)
@@ -248,10 +269,6 @@ class TaxiSimulationWindow:
                 self.doTravelInstruction()
             elif(self.actualInstruction[1] == self.searchInstruction):
                 self.doSearchInstruction()
-            elif(self.actualInstruction[1] == self.showInstruction):
-                self.doShowInstruction()
-            elif(self.actualInstruction[1] == self.routeInstruction):
-                self.doRouteInstruction()
             elif(self.actualInstruction[1] == self.randomClientsInstruction):
                 self.doRandomClientsInstruction()
             elif(self.actualInstruction[1] == self.specificClientInstruction):
@@ -509,129 +526,6 @@ class TaxiSimulationWindow:
             self.paintWalls() 
             
         self.master.after(self.updateTime, self.getConsoleInstruction)
-
-    #This function is in charge of doing the route instruction
-    def doRouteInstruction(self):
-      #  actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-        
-        self.routeAlreadyExecute = True
-        if(self.actualInstruction[2] == "on"):
-            #Do the route instruction, and save the travel in the travelList
-            routeTravel = self.cityGraph.taxiRouteToDestination()[:]
-
-
-            for i in range(0,len(routeTravel)):
-                x = routeTravel[0][0]
-                y = routeTravel[0][1]
-            
-                #Resize the image with the size of the square
-                displayImage = self.resizeImage("no", "V", self.widthOfEachFrame, self.heightOfEachFrame)
-                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                frame.grid(row=x, column=y)
-                
-                #Create the Label and add it to the List of Labels
-                label = Label(frame, image = displayImage)
-                label.image = displayImage
-                label.place(x=0,y=0)
-
-                #Add the Label to the matrix
-                self.matrixOfLabels[x][y] = label
-
-                #Delete an item of the list
-                del routeTravel[0]
-
-            ##Paint all the taxis, and clients if they were erased for the instruction##
-            self.paintClients()   
-            self.master.after(self.updateTime, self.getConsoleInstruction)
-
-        elif(self.actualInstruction[2] == "off"):
-            #Do the route instruction, and save the travel in the travelList
-            routeTravel = self.cityGraph.taxiRouteToDestination()[:]
-
-            for i in range(0,len(routeTravel)):
-                x = routeTravel[0][0]
-                y = routeTravel[0][1]
-            
-                #Resize the image with the size of the square
-                displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
-                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                frame.grid(row=x, column=y)
-                
-                #Create the Label and add it to the List of Labels
-                label = Label(frame, image = displayImage)
-                label.image = displayImage
-                label.place(x=0,y=0)
-
-                #Add the Label to the matrix
-                self.matrixOfLabels[x][y] = label
-
-                #Delete an item of the list
-                del routeTravel[0]
-
-            ##Paint all the taxis, and clients if they were erased for the instruction##
-            self.paintClients()
-            self.paintWalls()
-            self.master.after(self.updateTime, self.getConsoleInstruction)
-
-
-    #This function is in charge of doing the show instruction
-    def doShowInstruction(self):
-       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-
-        if(self.actualInstruction[2] == "on"):
-            #Do the show instruction, and save the travel in the travelList
-            allRoutes = self.cityGraph.showAllTaxiRoutes()[:]
-            for i in range(0,len(allRoutes)):
-                for j in range(0, len(allRoutes[i])):
-                    x = allRoutes[i][j][0]
-                    y = allRoutes[i][j][1]
-                    #Resize the image with the size of the square
-                    displayImage = self.resizeImage("no", "V", self.widthOfEachFrame, self.heightOfEachFrame)
-                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                    frame.grid(row=x, column=y)
-                    
-                    #Create the Label and add it to the List of Labels
-                    label = Label(frame, image = displayImage)
-                    label.image = displayImage
-                    label.place(x=0,y=0)
-
-                    #Add the Label to the matrix
-                    self.matrixOfLabels[x][y] = label
-
-            ##Paint all the taxis, and clients if they were erased for the instruction##
-            self.paintClients()
-            self.paintTaxi()
-            self.master.after(self.updateTime, self.getConsoleInstruction)
-
-        elif(self.actualInstruction[2] == "off"):
-            #Do the route instruction, and save the travel in the travelList
-            allRoutes = self.cityGraph.showAllTaxiRoutes()[:]
-
-            for i in range(0,len(allRoutes)):
-                for j in range(0, len(allRoutes[i])):
-                    x = allRoutes[i][j][0]
-                    y = allRoutes[i][j][1]
-                
-                    #Resize the image with the size of the square
-                    displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
-                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                    frame.grid(row=x, column=y)
-                    
-                    #Create the Label and add it to the List of Labels
-                    label = Label(frame, image = displayImage)
-                    label.image = displayImage
-                    label.place(x=0,y=0)
-
-                    #Add the Label to the matrix
-                    self.matrixOfLabels[x][y] = label
-
-            ##Paint all the taxis, and clients if they were erased for the instruction##
-            self.paintClients()
-            self.paintWalls()
-            self.paintTaxi()    
-            self.master.after(self.updateTime, self.getConsoleInstruction)
 
     #This function is in charge of perform the search for clients instruction
     def doSearchInstruction(self):

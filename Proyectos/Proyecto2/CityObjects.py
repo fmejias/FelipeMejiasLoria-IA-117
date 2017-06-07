@@ -903,6 +903,24 @@ class CityGraph:
                 if(self.cityMatrix[i][j].getNodeValue() == "-"):
                     wallsPositions.append((self.cityMatrix[i][j].getX(),self.cityMatrix[i][j].getY()))
         return wallsPositions
+
+    #This method is in charge of return the number of taxis in the map
+    def searchAllTaxis(self):
+        numberOfTaxis = 0
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().isdigit() == True):
+                    numberOfTaxis = numberOfTaxis + 1
+        return numberOfTaxis
+
+    #This method is in charge of return the number of buildings in the map
+    def searchAllBuildings(self):
+        numberOfBuildings = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().isupper() == True):
+                    numberOfBuildings.append(self.cityMatrix[i][j].getNodeValue())
+        return numberOfBuildings
     
     #This method is in charge of reset all clients
     def resetAllClients(self):
