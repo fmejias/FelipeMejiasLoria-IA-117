@@ -931,17 +931,13 @@ class CityGraph:
 
         #Save the olde positions
         listOfOldPositions = self.searchAllTaxisPosition()
-
-   #     print("Posiciones a borrar: ", listOfOldPositions)
-
+        
         #Reset the old positions
         for i in range(0,len(listOfOldPositions)):
             x = listOfOldPositions[i][1][0]
             y = listOfOldPositions[i][1][1]
             self.cityMatrix[x][y].setNodeValue(" ")
-
-  #      print("Posiciones a actualizar: ", listOfNewPositions)
-        
+       
         #Update the new positions
         for j in range(0,len(listOfNewPositions)):
             x = listOfNewPositions[j][1][0]
