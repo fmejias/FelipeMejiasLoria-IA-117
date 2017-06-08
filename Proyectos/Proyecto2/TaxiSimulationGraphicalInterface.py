@@ -16,6 +16,9 @@ import MapParser
 #Import of the module TimerGraphicalInterface to get the actual instruction
 import TimerGraphicalInterface
 
+#Import of the module StateMachine to check all of the possible movements of the taxis
+import StateMachine
+
 #Import of the module CityObjects to create the City Graph
 import CityObjects
 
@@ -120,9 +123,14 @@ class TaxiSimulationWindow:
 
         self.buttonBuildingInformation.place(x=10,y=5)
 
-        #This instruction is in constant review for the instruction of the console
-        #self.getConsoleInstruction()
+        #Create the panel with the building information
         self.createBuildingsInformation()
+
+        #Create the instance of the state machine
+        self.stateMachine = StateMachine.StateMachine()
+
+        #This instruction is in charge of beginning the simulation
+        self.startWorking()
 
 
     #This method is in charge of adding the buildings information(Search for all of the buildings and append a new frame to that board)
@@ -247,395 +255,67 @@ class TaxiSimulationWindow:
         return displayImage
 
 
-    #This function is in charge of get the instruction from the Console Window every updateTime
-    def getConsoleInstruction(self):
+    #This function is in charge of start the application
+    def startWorking(self):
 
-        #This is to not assign animar as an instruction
-        #instruction = ConsoleGraphicalInterface.returnInstruction().split()
-        instruction = ""
-        
-        if(len(instruction) > 1):
-            if(instruction[1] != self.animateInstruction and instruction != self.actualInstruction):
-                self.actualInstruction = instruction #Get a list with the strings of the instruction
-                self.sameInstruction = False
-            elif(instruction[1] == self.animateInstruction):
-                self.sameInstruction = False
-            elif (instruction == self.actualInstruction):
-                self.sameInstruction = True
-                
-        #This part select the according method to execute depends on the instruction inserted by the user
-        if(len(self.actualInstruction) > 1 and self.sameInstruction == False):
-            if(self.actualInstruction[1] == self.travelInstruction):
-                self.doTravelInstruction()
-            elif(self.actualInstruction[1] == self.searchInstruction):
-                self.doSearchInstruction()
-            elif(self.actualInstruction[1] == self.randomClientsInstruction):
-                self.doRandomClientsInstruction()
-            elif(self.actualInstruction[1] == self.specificClientInstruction):
-                self.doSpecificClientInstruction()
-            elif(self.actualInstruction[1] == self.parkInstruction):
-                self.doParkInstruction()
+        #Aqui va el codigo para estar revisando la hora
 
-        #If the user dont insert nothing for the first time
-        else:
-           
-            self.master.after(self.updateTime, self.getConsoleInstruction)    
+        #Por mientras, que solo llame a la funcion que mueve los carros de forma autonoma
+        self.master.after(self.updateTime, self.enableTaxisServices)    
 
+    #This function is in charge of enable the movement of the autonoumous taxis
+    def enableTaxisServices(self):
 
-        
-    #This function is in charge of doing the travel instruction
-    def doTravelInstruction(self):
-       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-        self.routeAlreadyExecute = False
-        if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
-            self.doAnimation = True
-            self.updateTime = int(actualInstruction[2])
-            self.master.after(self.updateTime, self.doTravelInstruction)
-        elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
-            self.doAnimation = False
-            self.master.after(self.updateTime, self.doTravelInstruction)
-        elif(self.doAnimation == True):
-            #Do the animation
-            if(self.travelList != []):
+        #Get the actual positions of the taxis
+        actualPositions = self.cityGraph.searchAllTaxisPosition()
 
-                #Update the update time
-                if(actualInstruction[1] == "animar" and actualInstruction[2] != "0"):
-                    self.updateTime = int(actualInstruction[2])
-                    
-                i = self.travelList[0][0]
-                j = self.travelList[0][1]
+        #Get the new positions of the taxis
+        newPositions = self.stateMachine.generateMovements(actualPositions, self.cityGraph.returnCityGraph())
 
-                #Initialize all of the variables
-                taxiX = 0
-                taxiY = 0
+        #Update the new positions of the taxis in the object self.cityGraph
+        self.cityGraph.updateTaxisPosition(newPositions)
 
-                #This part check when to used old variables
-                if(self.taxiNode == 0):
-                    self.taxiNode = self.cityGraph.searchTaxiNode()
-                    taxiX = self.taxiNode.getX()
-                    taxiY = self.taxiNode.getY()
-                else:
-                    taxiX = self.oldCoordinates[0]
-                    taxiY = self.oldCoordinates[1]
-                
-                #Resize the image with the size of the square
-                displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
-                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                frame.grid(row=taxiX, column=taxiY)
-                
-                #Create the Label and add it to the List of Labels
-                label = Label(frame, image = displayImage)
-                label.image = displayImage
-                label.place(x=0,y=0)
+        #Update the GUI - First refresh the old positions
+        for i in range(0, len(actualPositions)):
+            taxiX = actualPositions[i][1][0]
+            taxiY= actualPositions[i][1][1]
 
-                #Add the Label to the matrix
-                self.matrixOfLabels[taxiX][taxiY] = label
-
-                #Resize the image with the size of the square
-                displayImage = self.resizeImage("no", "D", self.widthOfEachFrame, self.heightOfEachFrame)
-                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                frame.grid(row=i, column=j)
-                
-                #Create the Label and add it to the List of Labels
-                label = Label(frame, image = displayImage)
-                label.image = displayImage
-                label.place(x=0,y=0)
-
-                #Add the Label to the matrix
-                self.matrixOfLabels[i][j] = label
-
-                #Save the old coordinates
-                self.oldCoordinates = [i,j]
-
-                #Delete an item of the list
-                del self.travelList[0]
-
-                #Repeat the function with this timer
-                self.master.after(self.updateTime, self.doTravelInstruction)
-                
-            #If the taxi get to its destination
-            else:
-                self.executingInstruction = False
-                self.doAnimation = False
-                self.cityGraph.updateInitialAndFinalValue() #Update the initial and the final node value
-
-                #This is to checkk if there is a different instruction
-                if(self.sameInstruction == False and actualInstruction[1] != "animar"):
-                    self.master.after(self.updateTime, self.getConsoleInstruction)
-                else:
-                    #Do the travel instruction, and save the travel in the travelList
-                    routeToTravel = self.cityGraph.taxiTravel()
-                    self.travelList = routeToTravel[:]
-                    self.master.after(self.updateTime, self.doTravelInstruction)
-            
-        else:
-            #Do the travel instruction, and save the travel in the travelList
-            routeToTravel = self.cityGraph.taxiTravel()
-            self.travelList = routeToTravel[:]
-            self.master.after(self.updateTime, self.getConsoleInstruction)
-        
-            
-         
-    #This function is in charge of doing the parking instruction
-    def doParkInstruction(self):
-       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-        
-        if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
-            self.doAnimation = True
-            self.updateTime = int(actualInstruction[2])
-            self.master.after(self.updateTime, self.doParkInstruction)
-        elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
-            self.doAnimation = False
-            self.master.after(self.updateTime, self.doParkInstruction)
-        elif(self.doAnimation == True):
-            #Do the animation
-            if(self.travelList != []):
-                i = self.travelList[0][0]
-                j = self.travelList[0][1]
-
-                #Initialize all of the variables
-                taxiX = 0
-                taxiY = 0
-
-                #This part check when to used old variables
-                if(self.taxiNode == 0):
-                    self.taxiNode = self.cityGraph.searchTaxiNode()
-                    taxiX = self.taxiNode.getX()
-                    taxiY = self.taxiNode.getY()
-                else:
-                    taxiX = self.oldCoordinates[0]
-                    taxiY = self.oldCoordinates[1]
-                
-                #Resize the image with the size of the square
-                displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
-                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                frame.grid(row=taxiX, column=taxiY)
-                
-                #Create the Label and add it to the List of Labels
-                label = Label(frame, image = displayImage)
-                label.image = displayImage
-                label.place(x=0,y=0)
-
-                #Add the Label to the matrix
-                self.matrixOfLabels[taxiX][taxiY] = label
-
-                #Resize the image with the size of the square
-                displayImage = self.resizeImage("no", "D", self.widthOfEachFrame, self.heightOfEachFrame)
-                frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                frame.grid(row=i, column=j)
-                
-                #Create the Label and add it to the List of Labels
-                label = Label(frame, image = displayImage)
-                label.image = displayImage
-                label.place(x=0,y=0)
-
-                #Add the Label to the matrix
-                self.matrixOfLabels[i][j] = label
-
-                #Save the old coordinates
-                self.oldCoordinates = [i,j]
-
-                #Delete an item of the list
-                del self.travelList[0]
-
-                #Repeat the function with this timer
-                self.master.after(self.updateTime, self.doParkInstruction)
-                
-            #If the taxi get to its destination
-            else:
-                self.executingInstruction = False
-                self.doAnimation = False
-                self.routeAlreadyExecute = False
-                self.cityGraph.updateInitialAndFinalValue() #Update the initial and the final node value
-                self.master.after(self.updateTime, self.getConsoleInstruction)
-            
-        else:
-            if(self.routeAlreadyExecute == False):
-                #Do the park instruction, and save the travel in the travelList
-                routeToTravel = self.cityGraph.parkTaxi(self.actualInstruction[2])
-                self.travelList = routeToTravel[:]
-                self.master.after(self.updateTime, self.getConsoleInstruction)
-            else:
-                self.master.after(self.updateTime, self.getConsoleInstruction)
-
-    #This function is in charge of doing the specific client instruction
-    def doSpecificClientInstruction(self):
-      #  actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-
-        self.routeAlreadyExecute = False
-        
-        #Do the specific client instruction, and save the travel in the travelList
-        clientCoordinates = self.cityGraph.addSpecificClient(self.actualInstruction[2], self.actualInstruction[3])
-        
-        #Resize the image with the size of the square
-        displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
-        frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-        frame.grid(row=clientCoordinates[0], column=clientCoordinates[1])
-        
-        #Create the Label and add it to the List of Labels
-        label = Label(frame, image = displayImage)
-        label.image = displayImage
-        label.place(x=0,y=0)
-
-        #When the instruction is done
-        self.executingInstruction = False
-        self.doAnimation = False
-        
-        #Add the Label to the matrix
-        self.matrixOfLabels[clientCoordinates[0]][clientCoordinates[1]] = label
-        self.master.after(self.updateTime, self.getConsoleInstruction)
-
-
-    #This function is in charge of doing the random clients instruction
-    def doRandomClientsInstruction(self):
-       # actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-        
-        self.routeAlreadyExecute = False
-        
-        #Do the specific client instruction, and save the travel in the travelList
-        clientsListCoordinates = self.cityGraph.addRandomClients(int(self.actualInstruction[2]))
-
-        for i in range(0,len(clientsListCoordinates)):
-            clientCoordinates = clientsListCoordinates[i]
-        
             #Resize the image with the size of the square
-            displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
+            displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
             frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-            frame.grid(row=clientCoordinates[0], column=clientCoordinates[1])
+            frame.grid(row=taxiX, column=taxiY)
             
             #Create the Label and add it to the List of Labels
             label = Label(frame, image = displayImage)
             label.image = displayImage
             label.place(x=0,y=0)
-
+            
             #Add the Label to the matrix
-            self.matrixOfLabels[clientCoordinates[0]][clientCoordinates[1]] = label
+            self.matrixOfLabels[taxiX][taxiY] = label
+
+        #Update the GUI - Draw the taxis in the new positions
+        for j in range(0, len(newPositions)):
+            taxiX = newPositions[j][1][0]
+            taxiY= newPositions[j][1][1]
+            taxiName = newPositions[j][0]
+
+            #Resize the image with the size of the square
+            displayImage = self.resizeImage("no", taxiName, self.widthOfEachFrame, self.heightOfEachFrame)
+            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+            frame.grid(row=taxiX, column=taxiY)
+            
+            #Create the Label and add it to the List of Labels
+            label = Label(frame, image = displayImage)
+            label.image = displayImage
+            label.place(x=0,y=0)
+            
+            #Add the Label to the matrix
+            self.matrixOfLabels[taxiX][taxiY] = label
+
+        #Refresh the screen again
+        self.master.after(self.updateTime, self.startWorking)
         
-        #When the instruction is done
-        self.executingInstruction = False
-        self.doAnimation = False
-
-        ###If N = 0
-        if(int(self.actualInstruction[2]) == 0):
-            self.cityGraph.resetAllClients()
-            ##Paint all the walls if they were erased for the instruction##
-            self.paintWalls() 
-            
-        self.master.after(self.updateTime, self.getConsoleInstruction)
-
-    #This function is in charge of perform the search for clients instruction
-    def doSearchInstruction(self):
-      #  actualInstruction = ConsoleGraphicalInterface.returnInstruction().split() #Get a list with the strings of the instruction
-        actualInstruction = ["a", "a", ""]
-        if(actualInstruction[1] == "animar" and self.doAnimation == False and actualInstruction[2] != "0"):
-            self.doAnimation = True
-            self.p = 0
-            self.updateTime = int(actualInstruction[2])
-            self.master.after(self.updateTime, self.doSearchInstruction)
-        elif(actualInstruction[1] == "animar" and actualInstruction[2] == "0"):
-            self.doAnimation = False
-            self.master.after(self.updateTime, self.doSearchInstruction)
-        elif(self.doAnimation == True):
-            #Do the animation
-            
-            if(self.searchIndex < len(self.travelList)):
-
-                if(self.searchList != []):
-                    i = self.searchList[0][0]
-                    j = self.searchList[0][1]
-
-                    #Initialize all of the variables
-                    taxiX = 0
-                    taxiY = 0
-
-                    #This part check when to used old variables
-                    if(self.taxiNode == 0):
-                        self.taxiNode = self.cityGraph.taxiInitialPosition
-                        taxiX = self.taxiNode.getX()
-                        taxiY = self.taxiNode.getY()
-                    else:
-                        taxiX = self.oldCoordinates[0]
-                        taxiY = self.oldCoordinates[1]
-                    
-                    #Resize the image with the size of the square
-                    displayImage = self.resizeImage("no", " ", self.widthOfEachFrame, self.heightOfEachFrame)
-                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                    frame.grid(row=taxiX, column=taxiY)
-                    
-                    #Create the Label and add it to the List of Labels
-                    label = Label(frame, image = displayImage)
-                    label.image = displayImage
-                    label.place(x=0,y=0)
-
-                    #Add the Label to the matrix
-                    self.matrixOfLabels[taxiX][taxiY] = label
-
-                    #Resize the image with the size of the square
-                    displayImage = self.resizeImage("no", "D", self.widthOfEachFrame, self.heightOfEachFrame)
-                    frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-                    frame.grid(row=i, column=j)
-                    
-                    #Create the Label and add it to the List of Labels
-                    label = Label(frame, image = displayImage)
-                    label.image = displayImage
-                    label.place(x=0,y=0)
-
-                    #Add the Label to the matrix
-                    self.matrixOfLabels[i][j] = label
-
-                    #Save the old coordinates
-                    self.oldCoordinates = [i,j]
-
-                    #Delete an item of the list
-                    del self.searchList[0]
-
-                    #Repeat the function with this timer
-                    self.master.after(self.updateTime, self.doSearchInstruction)
-                
-                #If the taxi get to its destination
-                else:
-                  
-                    self.searchIndex = self.searchIndex + 1
-                    if(self.searchIndex < len(self.travelList)):
-                        
-                        self.searchList = self.travelList[self.searchIndex][:]
-                    if(self.clientsList != []):
-                        x = self.clientsList[0][0]
-                        y = self.clientsList[0][1]
-                        if(self.oldCoordinates[0]+1 == x and self.oldCoordinates[1] == y):
-                            self.cityGraph.resetClient(x,y)
-                            self.paintWall(x,y)
-                            self.p = 1
-                            winsound.PlaySound(self.soundFilePath, winsound.SND_FILENAME)
-                            del self.clientsList[0]
-                        elif(self.oldCoordinates[0]-1 == x and self.oldCoordinates[1] == y):
-                            self.cityGraph.resetClient(x,y)
-                            self.paintWall(x,y)
-                            self.p = 1
-                            winsound.PlaySound(self.soundFilePath, winsound.SND_FILENAME)
-                            del self.clientsList[0]
-                        
-                    self.master.after(self.updateTime, self.doSearchInstruction)
-            else:
-                self.executingInstruction = False
-                self.doAnimation = False
-                #Erase all of the clients and paint all of the walls again#
-                self.master.after(self.updateTime, self.getConsoleInstruction)
-            
-        else:
-            routeToTravel = self.cityGraph.search()
-            self.travelList = routeToTravel[:]
-            self.taxiNode = 0
-            self.searchIndex = 0
-            self.searchList = self.travelList[self.searchIndex][:]
-            self.clientsList = self.cityGraph.clientsList[:]
-            self.master.after(self.updateTime, self.getConsoleInstruction)
-
-
+    
     ##This method paint all of the walls again
     def paintWalls(self):
         wallsPositions = self.cityGraph.searchAllWalls()[:]

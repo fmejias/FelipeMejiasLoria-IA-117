@@ -913,6 +913,41 @@ class CityGraph:
                     numberOfTaxis = numberOfTaxis + 1
         return numberOfTaxis
 
+    #This method is in charge of return a list with the position of all of the taxis
+    def searchAllTaxisPosition(self):
+        taxisPosition = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().isdigit() == True):
+                    taxisPosition.append([self.cityMatrix[i][j].getNodeValue(), [i,j]])
+        return taxisPosition
+
+    #This method return the graph of the city
+    def returnCityGraph(self):
+        return self.cityMatrix
+
+    #This method is in charge of update the taxis movements
+    def updateTaxisPosition(self, listOfNewPositions):
+
+        #Save the olde positions
+        listOfOldPositions = self.searchAllTaxisPosition()
+
+   #     print("Posiciones a borrar: ", listOfOldPositions)
+
+        #Reset the old positions
+        for i in range(0,len(listOfOldPositions)):
+            x = listOfOldPositions[i][1][0]
+            y = listOfOldPositions[i][1][1]
+            self.cityMatrix[x][y].setNodeValue(" ")
+
+  #      print("Posiciones a actualizar: ", listOfNewPositions)
+        
+        #Update the new positions
+        for j in range(0,len(listOfNewPositions)):
+            x = listOfNewPositions[j][1][0]
+            y = listOfNewPositions[j][1][1]
+            self.cityMatrix[x][y].setNodeValue(listOfNewPositions[j][0])   
+
     #This method is in charge of return the number of buildings in the map
     def searchAllBuildings(self):
         numberOfBuildings = []
