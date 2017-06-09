@@ -63,6 +63,9 @@ class TaxiSimulationWindow:
         self.apartmentController = Buildings.ApartmentController()
         self.workplaceController = Buildings.WorkplaceController()
 
+        #This variable is going to contain the actual time
+        self.actualTime = "0:00"
+
         #This contains the actual instruction
         self.actualInstruction = ""
 
@@ -203,14 +206,15 @@ class TaxiSimulationWindow:
             labelTitle = Label(buildingInformation1, text=buildingName, width= 10,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelTitle.grid(row=0, column = 0)
 
-            labelOut = Label(buildingInformation1, text="Salida: " + leaveArriveSchedule[0], width= 15,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelOut = Label(buildingInformation1, text="Salida: " + leaveArriveSchedule[0] + " am", width= 15,height = 2, bg= "moccasin",
+                             fg='black',font = ('Kalinga','12'))
             labelOut.grid(row=0,column=1)
 
             labelImage = Label(buildingInformation1, image=buildingImage, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelImage.image = buildingImage
             labelImage.grid(row=1, column = 0)
 
-            labelIn = Label(buildingInformation1, text="Entrada: " + leaveArriveSchedule[1], width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelIn = Label(buildingInformation1, text="Entrada: " + leaveArriveSchedule[1] + " pm", width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelIn.grid(row=1,column=1)
 
             #Update the coordinates of x and y of the new frame
@@ -341,6 +345,8 @@ class TaxiSimulationWindow:
     def startWorking(self):
 
         #Aqui va el codigo para estar revisando la hora
+        self.actualTime = TimerGraphicalInterface.returnTime()
+        print("El tiempo actual es: ", self.actualTime)
 
         #Por mientras, que solo llame a la funcion que mueve los carros de forma autonoma
         self.master.after(self.updateTime, self.enableTaxisServices)    

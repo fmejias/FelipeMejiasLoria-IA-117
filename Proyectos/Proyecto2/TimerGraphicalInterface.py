@@ -22,7 +22,7 @@ class TimerWindow:
     def __init__(self, master):
 
         #####Variables need it for the timer ######
-        self.timer = [0, 0, 0] #[hours,minutes,seconds]
+        self.timer = [5, 0, 0] #[hours,minutes,seconds]
         self.pattern = '{0:02d}:{1:02d}:{2:02d}' 
         self.start = True
 
@@ -120,4 +120,5 @@ def returnTime():
     global timerWindow
     global time
     time = timerWindow.getTime()
+    time = str(time[0]) + ":" + str(time[1]) 
     return time
