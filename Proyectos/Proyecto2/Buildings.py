@@ -12,7 +12,15 @@ class Apartment:
         self.leaveSchedule = leaveSchedule
         self.arriveSchedule = arriveSchedule
         self.listOfClients = []
+        self.actualNumberOfClientsInTheBuilding = int(numberOfClients)
+        self.putAClient = True
 
+    def setPutAClient(self,value):
+        self.putAClient = value
+
+    def getPutAClient(self):
+        return self.putAClient
+    
     #This method set the apartmentName
     def setApartmentName(self,name):
         self.apartmentName = name
@@ -34,6 +42,9 @@ class Apartment:
 
     def getLeaveSchedule(self):
         return self.leaveSchedule
+
+    def subtractClientsInTheBuilding(self):
+        self.actualNumberOfClientsInTheBuilding = self.actualNumberOfClientsInTheBuilding - 1
 
     def setArriveSchedule(self,arriveSchedule):
         self.arriveSchedule = arriveSchedule
@@ -84,8 +95,8 @@ class Workplace:
 class ApartmentController:
     def __init__(self):
         self.listOfApartments = []
-        self.leaveApartmentHours = ["7:00", "7:30", "8:00", "8:30"]
-        self.arriveApartmentHours = ["5:00", "5:30", "6:00", "6:30", "7:00"]
+        self.leaveApartmentHours = ["07:00", "07:30", "08:00", "08:30"]
+        self.arriveApartmentHours = ["05:00", "05:30", "06:00", "06:30", "07:00"]
 
     #Create an apartment
     def addApartment(self,name, numberOfClients, workplace):
@@ -124,6 +135,25 @@ class ApartmentController:
                 break
 
         return [leaveSchedule, arriveSchedule]
+
+    #This method check which apartment need to send clients to work(Lista asi: [["A", True], ["B", True]]) (NombreEdificio, putAClient)
+    def checkClientsToGoToWork(self, time):
+        listOfApartmentsToGoToWork = []
+        for i in range(0, len(self.listOfApartments)):
+            apartment = self.listOfApartments[i]
+            if(apartment.getLeaveSchedule() == time and apartment.actualNumberOfClientsInTheBuilding > 0):
+                listOfApartmentsToGoToWork.append([apartment.getApartmentName(), apartment.getPutAClient()])
+                apartment.setPutAClient(False) #This value change after the taxi grabbed the client
+
+        return listOfApartmentsToGoToWork
+
+    #This method is called when a client grabbed a taxi, so there is less people in the apartment
+    def clientGrabbedATaxi(self, apartmentName):
+        for i in range(0, len(self.listOfApartments)):
+            apartment = self.listOfApartments[i]
+            if(apartment.getApartmentName() == apartmentName):
+                apartment.subtractClientsInTheBuilding()
+                apartment.setPutAClient(True)
     
     #Return the list with all of the Apartments
     def getListOfApartments(self):

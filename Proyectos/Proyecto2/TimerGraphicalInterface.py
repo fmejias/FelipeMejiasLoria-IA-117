@@ -23,14 +23,15 @@ class TimerWindow:
 
         #####Variables need it for the timer ######
         self.timer = [5, 0, 0] #[hours,minutes,seconds]
-        self.pattern = '{0:02d}:{1:02d}:{2:02d}' 
+        self.pattern = '{0:02d}:{1:02d}:{2:02d}'
+        self.patternOutput = '{0:02d}:{1:02d}' 
         self.start = True
 
         #Set the master as the root
         self.master = master
 
         #Here, we create a frame
-        self.frame = Frame(self.master, width=1100, height=50, background="Black")
+        self.frame = Frame(self.master, width=1250, height=50, background="Black")
         self.frame.pack()
 
         #Buttons and labels for the timer GUI
@@ -44,9 +45,12 @@ class TimerWindow:
         self.startTimeButton = Button(self.frame, text="Iniciar",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken',
                                       command = self.startTimer)
         self.startTimeButton.place(x=830,y=5)
-        self.forwardTimeButton = Button(self.frame, text="Adelantar hora",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken',
+        self.forwardHoursButton = Button(self.frame, text="Adelantar hora",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken',
                                         command = self.advanceHours)
-        self.forwardTimeButton.place(x=430,y=5)
+        self.forwardHoursButton.place(x=430,y=5)
+        self.forwardMinutesButton = Button(self.frame, text="Adelantar minutos",width= 15, height = 1, bg= "Black",fg='White',font = ('Kalinga','16'),relief='sunken',
+                                        command = self.advanceMinutes)
+        self.forwardMinutesButton.place(x=1030,y=5)
 
         ##Call the clock function
         self.update_time()
@@ -99,10 +103,24 @@ class TimerWindow:
 
         #Call the update function again
         self.master.after(1000, self.update_time)
+
+    #This method advance the minutes
+    def advanceMinutes(self):
+        #Advance the minutes
+        self.timer[1] += 1
+        
+        # We create our time string here
+        timeString = self.pattern.format(self.timer[0], self.timer[1], self.timer[2])
+
+        # Update the time
+        self.timeLabel.configure(text=timeString)
+
+        #Call the update function again
+        self.master.after(1000, self.update_time)
         
     #This method return the time
     def getTime(self):
-        return self.timer
+        return self.patternOutput.format(self.timer[0], self.timer[1])
 
 #This function display the timer
 def displayTimer():
@@ -110,7 +128,7 @@ def displayTimer():
     master = Tk()#Create the principle window
     master.wm_title("Clock") #Add a title to the window
     timerWindow = TimerWindow(master) #Add the timer frame to the principle window
-    master.geometry("1100x50") #Set the size of the root
+    master.geometry("1250x50") #Set the size of the root
     master.geometry("+0+638") #Set the position of the root on the screen
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the timer window
@@ -120,5 +138,4 @@ def returnTime():
     global timerWindow
     global time
     time = timerWindow.getTime()
-    time = str(time[0]) + ":" + str(time[1]) 
     return time

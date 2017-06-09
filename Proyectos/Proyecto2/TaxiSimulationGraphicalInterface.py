@@ -346,7 +346,9 @@ class TaxiSimulationWindow:
 
         #Aqui va el codigo para estar revisando la hora
         self.actualTime = TimerGraphicalInterface.returnTime()
-        print("El tiempo actual es: ", self.actualTime)
+
+        #Check if a client has to go to work
+        self.checkClientsToGoToWork(self.actualTime)
 
         #Por mientras, que solo llame a la funcion que mueve los carros de forma autonoma
         self.master.after(self.updateTime, self.enableTaxisServices)    
@@ -481,7 +483,42 @@ class TaxiSimulationWindow:
         label.place(x=0,y=0)
 
         #Add the Label to the matrix
-        self.matrixOfLabels[x][y] = label            
+        self.matrixOfLabels[x][y] = label
+
+    ##This method paint a client on the map
+    def paintClient(self,x,y):
+        
+        #Resize the image with the size of the square
+        displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
+        frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+        frame.grid(row=x, column=y)
+        
+        #Create the Label and add it to the List of Labels
+        label = Label(frame, image = displayImage)
+        label.image = displayImage
+        label.place(x=0,y=0)
+
+        #Add the Label to the matrix
+        self.matrixOfLabels[x][y] = label
+
+    #This method checks if if hast to put a client to go to work
+    def checkClientsToGoToWork(self, time):
+        listOfApartmentsThatNeedToWork = self.apartmentController.checkClientsToGoToWork(time)
+        listOfApartmentPositions = self.cityGraph.searchAllApartmentsPosition()
+        for i in range(0, len(listOfApartmentsThatNeedToWork)):
+            putAClient = listOfApartmentsThatNeedToWork[i][1]
+            apartmentName = listOfApartmentsThatNeedToWork[i][0]
+            if(putAClient == True):
+                #Iterate for all the apartments
+                for j in range(0, len(listOfApartmentPositions)):
+                    apartment = listOfApartmentPositions[j][0] #Name of the apartment
+                    x = listOfApartmentPositions[j][1][0]
+                    y = listOfApartmentPositions[j][1][1]
+
+                    #Paint the client on the map
+                    if(apartment == apartmentName):
+                        self.paintClient(x-1,y)
+                        break
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
