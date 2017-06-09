@@ -34,6 +34,10 @@ import time
 #Import of the module in charge of parse the clients file
 import ClientsParser
 
+import Buildings
+
+import random
+
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -55,9 +59,9 @@ class TaxiSimulationWindow:
         #This is an instance of the ClientsParser
         self.clientsParser = ClientsParser.ClientsParser()
 
-        #This two list contains all the possible hours for leave the apartment and go back to the apartment after work
-        self.leaveApartmentHours = ["7:00", "7:30", "8:00", "8:30"]
-        self.arriveApartmentHours = ["5:00", "5:30", "6:00", "6:30", "7:00"]
+        #Apartment controller and workplace controller
+        self.apartmentController = Buildings.ApartmentController()
+        self.workplaceController = Buildings.WorkplaceController()
 
         #This contains the actual instruction
         self.actualInstruction = ""
@@ -134,6 +138,9 @@ class TaxiSimulationWindow:
 
         self.buttonBuildingInformation.place(x=10,y=5)
 
+        #Create all of the apartments and clients objects
+        self.createApartmentsAndClients()
+
         #Create the panel with the building information
         self.createBuildingsInformation()
 
@@ -145,6 +152,25 @@ class TaxiSimulationWindow:
 
         #This instruction is in charge of beginning the simulation
         self.startWorking()
+
+
+    #This method is in charge of create all of the objects Apartments and Clients
+    def createApartmentsAndClients(self):
+        listOfNumberOfClientsAndApartmentNames = self.clientsParser.parseClients()
+        listOfAllWorkplaces = self.cityGraph.searchAllWorkplaces()
+
+        ##Iterate for all of the apartments on the map
+        for i in range(0, len(listOfNumberOfClientsAndApartmentNames)):
+
+            #Get the name and the number of clients
+            apartmentName = listOfNumberOfClientsAndApartmentNames[i][0]
+            apartmentClients = listOfNumberOfClientsAndApartmentNames[i][1]
+
+            #Add random workplace to all of the clients of that apartment
+            workplace = random.choice(listOfAllWorkplaces)
+
+            #Create the apartment and all the clients of the apartment
+            self.apartmentController.addApartment(apartmentName, apartmentClients, workplace)
 
 
     #This method is in charge of adding the buildings information(Search for all of the buildings and append a new frame to that board)
@@ -168,20 +194,23 @@ class TaxiSimulationWindow:
             buildingImage = Image.open("ProjectImages/" + "apartamento" + buildingsList[i] + ".png")
             buildingImage = buildingImage.resize((80, 71), Image.ANTIALIAS)
             buildingImage = ImageTk.PhotoImage(buildingImage)
+
+            #Get leave and arrive schedule
+            leaveArriveSchedule = self.apartmentController.getLeaveArriveSchedule(buildingsList[i])
             
             #Label for the frame
             buildingName = "Edificio " + buildingsList[i]
             labelTitle = Label(buildingInformation1, text=buildingName, width= 10,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelTitle.grid(row=0, column = 0)
 
-            labelOut = Label(buildingInformation1, text="Salida: 9:00 am", width= 15,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelOut = Label(buildingInformation1, text="Salida: " + leaveArriveSchedule[0], width= 15,height = 2, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelOut.grid(row=0,column=1)
 
             labelImage = Label(buildingInformation1, image=buildingImage, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelImage.image = buildingImage
             labelImage.grid(row=1, column = 0)
 
-            labelIn = Label(buildingInformation1, text="Llegada: 8:00 pm", width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
+            labelIn = Label(buildingInformation1, text="Entrada: " + leaveArriveSchedule[1], width= 15,height = 4, bg= "moccasin",fg='black',font = ('Kalinga','12'))
             labelIn.grid(row=1,column=1)
 
             #Update the coordinates of x and y of the new frame

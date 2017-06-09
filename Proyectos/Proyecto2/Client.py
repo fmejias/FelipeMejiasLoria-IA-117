@@ -6,8 +6,8 @@ class Client:
     def __init__(self):
         self.initialBlock = "" 
         self.destinationBlock = ""
-        self.leaveTime = ""
-        self.arriveTime = ""
+        self.leaveSchedule = ""
+        self.arriveSchedule = ""
         self.workplace = "" #Name of the workplace of the client
         self.apartment = "" #Name of the apartment of the client
 
@@ -32,6 +32,18 @@ class Client:
 
     def getWorkplace(self):
         return self.workplace
+    
+    def setLeaveSchedule(self,schedule):
+        self.leaveSchedule = schedule
+
+    def getLeaveSchedule(self):
+        return self.leaveSchedule
+
+    def setArriveSchedule(self,schedule):
+        self.arriveSchedule = schedule
+
+    def getArriveSchedule(self):
+        return self.leaveSchedule
 
     def setApartment(self,apartment):
         self.apartment = apartment

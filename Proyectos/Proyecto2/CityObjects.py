@@ -938,6 +938,15 @@ class CityGraph:
                 if(self.cityMatrix[i][j].getNodeValue().isupper() == True):
                     numberOfBuildings.append(self.cityMatrix[i][j].getNodeValue())
         return numberOfBuildings
+
+    #This method is in charge of return the number of workplaces in the map
+    def searchAllWorkplaces(self):
+        numberOfWorkplaces = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().islower() == True):
+                    numberOfWorkplaces.append(self.cityMatrix[i][j].getNodeValue())
+        return numberOfWorkplaces
     
     #This method is in charge of reset all clients
     def resetAllClients(self):
