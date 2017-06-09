@@ -58,7 +58,7 @@ class TaxiSimulationWindow:
 
         #This indicates to do the animation
         self.doAnimation = False
-        self.updateTime = 1000
+        self.updateTime = 50
         self.sameInstruction = False
 
         #List with the travel of the taxi
