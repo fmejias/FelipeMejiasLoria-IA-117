@@ -31,6 +31,9 @@ import winsound
 #Import of the module to implement a delay for the timer
 import time
 
+#Import of the module in charge of parse the clients file
+import ClientsParser
+
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -48,6 +51,13 @@ class TaxiSimulationWindow:
         self.city = MapParser.createMapParser()
         self.rows = len(self.city)
         self.columns = len(self.city[0])
+
+        #This is an instance of the ClientsParser
+        self.clientsParser = ClientsParser.ClientsParser()
+
+        #This two list contains all the possible hours for leave the apartment and go back to the apartment after work
+        self.leaveApartmentHours = ["7:00", "7:30", "8:00", "8:30"]
+        self.arriveApartmentHours = ["5:00", "5:30", "6:00", "6:30", "7:00"]
 
         #This contains the actual instruction
         self.actualInstruction = ""
@@ -105,6 +115,7 @@ class TaxiSimulationWindow:
         self.buildingImage = ""
         self.cuadraIdentificada = ""
         self.taxi = ""
+        self.clientsNumber = ""
         
         #Set the master as the root
         self.master = master
@@ -128,6 +139,9 @@ class TaxiSimulationWindow:
 
         #Create the instance of the state machine
         self.stateMachine = StateMachine.StateMachine()
+
+        #Paint the number of clients
+        self.paintNumberOfClients()
 
         #This instruction is in charge of beginning the simulation
         self.startWorking()
@@ -172,6 +186,45 @@ class TaxiSimulationWindow:
 
             #Update the coordinates of x and y of the new frame
             frameY = frameY + 140
+
+    #This method is in charge of paint the number of clients in the building
+    def paintNumberOfClients(self):
+        listOfCoordinatesOfApartments = self.cityGraph.searchAllApartmentsPosition()
+        listOfNumberOfClients = self.clientsParser.parseClients()
+
+        #Iterate for all the apartments
+        for i in range(0, len(listOfCoordinatesOfApartments)):
+            apartment = listOfCoordinatesOfApartments[i][0] #Name of the apartment
+            x = listOfCoordinatesOfApartments[i][1][0]
+            y = listOfCoordinatesOfApartments[i][1][1]
+            numberOfClients = 0
+
+            #Search the number of clients of the apartment
+            for j in range(0, len(listOfNumberOfClients)):
+                if(listOfNumberOfClients[j][0] == apartment):
+                    numberOfClients = listOfNumberOfClients[j][1]
+                    break
+
+            #Paint the number of clients
+                    
+            #Resize the image with the size of the square
+            imagePath = "ProjectImages/" + numberOfClients + ".png"
+            self.clientsNumber = Image.open(imagePath)
+
+            #Resize the image with the size of the square
+            displayImage = self.clientsNumber.resize((self.widthOfEachFrame, self.heightOfEachFrame), Image.ANTIALIAS)
+            displayImage = ImageTk.PhotoImage(displayImage)
+
+            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+            frame.grid(row=x, column=y+1)
+            
+            #Create the Label and add it to the List of Labels
+            label = Label(frame, image = displayImage)
+            label.image = displayImage
+            label.place(x=0,y=0)
+            
+            #Add the Label to the matrix
+            self.matrixOfLabels[x][y+1] = label
         
 
     #This method is in charge of build the city

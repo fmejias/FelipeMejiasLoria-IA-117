@@ -16,31 +16,8 @@ from operator import itemgetter
 ##Import the copy module
 import copy
 
-###########################################################################################################
-# Client Class:
-##########################################################################################################
-
-class Client:
-    def __init__(self):
-        self.initialBlock = "" 
-        self.destinationBlock = ""
-
-    #This method set the initialBlock of the Client
-    def setInitialBlock(self,initialBlock):
-        self.initialBlock = initialBlock
-
-    #This method get the initial block of the client
-    def getInitialBlock(self):
-        return self.initialBlock
-
-    #This method set the destination block of the Client
-    def setDestinationBlock(self,destinationBlock):
-        self.destinationBlock = destinationBlock
-
-    #This method get the destination block of the client
-    def getDestinationBlock(self):
-        return self.destinationBlock
-
+#Import the client class
+import Client
 
 ###########################################################################################################
 # CityNode Class:
@@ -58,7 +35,7 @@ class CityNode:
         self.h = 0
         self.father = 0
         self.belongToBlock = ""
-        self.client = Client() #Each city node contains an object client
+        self.client = Client.Client() #Each city node contains an object client
         self.haveBlockAsNeighbor = False 
         self.haveAClient = False
 
@@ -921,6 +898,15 @@ class CityGraph:
                 if(self.cityMatrix[i][j].getNodeValue().isdigit() == True):
                     taxisPosition.append([self.cityMatrix[i][j].getNodeValue(), [i,j]])
         return taxisPosition
+
+    #This method is in charge of return a list with the position of all of the taxis
+    def searchAllApartmentsPosition(self):
+        apartmentsPosition = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().isupper() == True):
+                    apartmentsPosition.append([self.cityMatrix[i][j].getNodeValue(), [i,j]])
+        return apartmentsPosition
 
     #This method return the graph of the city
     def returnCityGraph(self):
