@@ -34,7 +34,11 @@ import time
 #Import of the module in charge of parse the clients file
 import ClientsParser
 
+#Import of the classes Apartment Controller and Workplace Controller
 import Buildings
+
+#Import of the Taxi Controller class
+import Taxi
 
 import random
 
@@ -77,13 +81,6 @@ class TaxiSimulationWindow:
         #List with the travel of the taxi
         self.travelList = []
 
-        #This variable is need it for the search instruction
-        self.searchIndex = 0
-        self.searchList = []
-        self.clientsList = []
-        self.p = 0
-        self.soundFilePath = "ProjectSounds/taxi_call.wav"
-
         #This indicates if there is an instruction executing at the time
         self.executingInstruction = False
 
@@ -93,13 +90,18 @@ class TaxiSimulationWindow:
         #Create a City Graph Object
         self.cityGraph = CityObjects.createCityGraph(self.city)
 
-        #Apartment controller and workplace controller
+        #Apartment controller, workplace controller and taxi controller
         self.apartmentController = Buildings.ApartmentController(self.cityGraph.searchAllWorkplaces())
         self.workplaceController = Buildings.WorkplaceController(self.cityGraph.searchAllWorkplaces())
+        self.taxiController = Taxi.TaxiController(self.cityGraph.searchAllTaxisId())
 
         #This lists are use to paint the clients in the workplaces and apartments
         self.listOfApartmentPositions = self.cityGraph.searchAllApartmentsPosition()
         self.listOfWorkplacesPositions = self.cityGraph.searchAllWorkplacesPosition()
+        self.listOfApartmentsThatNeedToWork = []
+        self.listOfWorkplacesThatNeedToGoHome = []
+
+
 
         #Initialize the matrix of Labels that are going to compose the Window
         self.matrixOfLabels = self.city
@@ -347,7 +349,55 @@ class TaxiSimulationWindow:
         self.checkClientsToGoToWorkToGoHome(self.actualTime)
 
         #Por mientras, que solo llame a la funcion que mueve los carros de forma autonoma
-        self.master.after(self.updateTime, self.enableTaxisServices)    
+        self.master.after(self.updateTime, self.enableTaxisServices)
+
+    #This method is in charge of check if a client is in front of the taxi
+    def searchClients(self):
+        apartmentsWithClientsOutside = self.listOfApartmentsThatNeedToWork
+
+        #Iterate for all of the apartments
+        for i in range(0, len(apartmentsWithClientsOutside)):
+            apartmentName = apartmentsWithClientsOutside[i][0]
+            taxiNearClient = self.cityGraph.pickAClient(apartmentName) #Get the taxi in front of the client
+
+            if(taxiNearClient != ""):
+
+                #Check if the taxi has already a client
+                taxiHaveClient = self.taxiController.getTaxiWithClient(taxiNearClient)
+
+                if(taxiHaveClient == False):
+                    
+                    #Get the list of clients waiting a taxi and extract a client
+                    listOfClients = self.apartmentController.getClientsToGoToWork(apartmentName, self.actualTime)
+                    client = listOfClients[0]
+                    client.goToWork()
+                    destinationOfClient = client.getDestinationBlock()
+
+                    #Calculate the road for the taxi
+                    taxiRoad = self.cityGraph.travelWithClientRoad(destinationOfClient, taxiNearClient)
+
+                    #Decrement the actual number of clients in the building
+                    self.apartmentController.clientGrabbedATaxi(apartmentName)
+
+                    #Update the taxi controller
+                    self.taxiController.setTaxiRoad(taxiRoad, taxiNearClient)
+                    self.taxiController.setTaxiWithClient(taxiNearClient)
+
+                    #Erase client
+                    for j in range(0, len(self.listOfApartmentPositions)):
+                        apartment = self.listOfApartmentPositions[j][0] #Name of the apartment
+                        x = self.listOfApartmentPositions[j][1][0]
+                        y = self.listOfApartmentPositions[j][1][1]
+
+                        #Paint the client on the map
+                        if(apartment == apartmentName):
+                            self.paintWall(x-1,y)
+                            break
+                    
+                    #Delete a client from the list
+                    del listOfClients[0]
+                
+        
 
     #This function is in charge of enable the movement of the autonoumous taxis
     def enableTaxisServices(self):
@@ -355,8 +405,14 @@ class TaxiSimulationWindow:
         #Get the actual positions of the taxis
         actualPositions = self.cityGraph.searchAllTaxisPosition()
 
+        #Aqui tengo que revisar si un taxi esta a la par de un cliente
+        self.searchClients()
+
         #Get the new positions of the taxis
-        newPositions = self.stateMachine.generateMovements(actualPositions, self.cityGraph.returnCityGraph())
+        newPositions = self.stateMachine.generateMovements(actualPositions, self.cityGraph.returnCityGraph(), self.taxiController)
+
+        #Check if the taxi with the client gets to its destiny
+        self.taxiController.checkAlreadyInDestination()
 
         #Update the new positions of the taxis in the object self.cityGraph
         self.cityGraph.updateTaxisPosition(newPositions)
@@ -400,69 +456,8 @@ class TaxiSimulationWindow:
 
         #Refresh the screen again
         self.master.after(self.updateTime, self.startWorking)
-        
+
     
-    ##This method paint all of the walls again
-    def paintWalls(self):
-        wallsPositions = self.cityGraph.searchAllWalls()[:]
-        for i in range(0,len(wallsPositions)):
-            x = wallsPositions[i][0]
-            y = wallsPositions[i][1]
-
-            #Paint the image of the wall
-            
-            #Resize the image with the size of the square
-            displayImage = self.resizeImage("no", "-", self.widthOfEachFrame, self.heightOfEachFrame)
-            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-            frame.grid(row=x, column=y)
-            
-            #Create the Label and add it to the List of Labels
-            label = Label(frame, image = displayImage)
-            label.image = displayImage
-            label.place(x=0,y=0)
-
-            #Add the Label to the matrix
-            self.matrixOfLabels[x][y] = label
-
-    ##This method paint all of the clients again
-    def paintClients(self):
-        clientsPositions = self.cityGraph.searchAllClients()[:]
-        for i in range(0,len(clientsPositions)):
-            x = clientsPositions[i][0]
-            y = clientsPositions[i][1]
-
-            #Paint the image of the wall
-            
-            #Resize the image with the size of the square
-            displayImage = self.resizeImage("no", "O", self.widthOfEachFrame, self.heightOfEachFrame)
-            frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-            frame.grid(row=x, column=y)
-            
-            #Create the Label and add it to the List of Labels
-            label = Label(frame, image = displayImage)
-            label.image = displayImage
-            label.place(x=0,y=0)
-
-            #Add the Label to the matrix
-            self.matrixOfLabels[x][y] = label
-
-    #This method paint a wall
-    def paintWall(self,x,y):
-        #Paint the image of the wall
-            
-        #Resize the image with the size of the square
-        displayImage = self.resizeImage("no", "-", self.widthOfEachFrame, self.heightOfEachFrame)
-        frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
-        frame.grid(row=x, column=y)
-        
-        #Create the Label and add it to the List of Labels
-        label = Label(frame, image = displayImage)
-        label.image = displayImage
-        label.place(x=0,y=0)
-
-        #Add the Label to the matrix
-        self.matrixOfLabels[x][y] = label
-             
     ##This method paint the taxi again
     def paintTaxi(self):
         x = self.cityGraph.searchTaxiNode().getX()
@@ -497,15 +492,32 @@ class TaxiSimulationWindow:
         #Add the Label to the matrix
         self.matrixOfLabels[x][y] = label
 
+    ##This method paint a horizontal wall on the map
+    def paintWall(self,x,y):
+        
+        #Resize the image with the size of the square
+        displayImage = self.resizeImage("no", "-", self.widthOfEachFrame, self.heightOfEachFrame)
+        frame=Frame(self.master, width=self.widthOfEachFrame, height=self.heightOfEachFrame, background="White")
+        frame.grid(row=x, column=y)
+        
+        #Create the Label and add it to the List of Labels
+        label = Label(frame, image = displayImage)
+        label.image = displayImage
+        label.place(x=0,y=0)
+
+        #Add the Label to the matrix
+        self.matrixOfLabels[x][y] = label
+
     #This method checks if if hast to put a client to go to work
     def checkClientsToGoToWorkToGoHome(self, time):
-        listOfApartmentsThatNeedToWork = self.apartmentController.checkClientsToGoToWork(time)
-        listOfWorkplacesThatNeedToGoHome = self.workplaceController.checkClientsToGoHome(time)
+        self.listOfApartmentsThatNeedToWork = self.apartmentController.checkClientsToGoToWork(time)
+        self.listOfWorkplacesThatNeedToGoHome = self.workplaceController.checkClientsToGoHome(time)
+        listOfClientsToErase = self.apartmentController.checkClientsToEraseFromApartment()
 
         #This part paint clients on the apartments
-        for i in range(0, len(listOfApartmentsThatNeedToWork)):
-            putAClient = listOfApartmentsThatNeedToWork[i][1]
-            apartmentName = listOfApartmentsThatNeedToWork[i][0]
+        for i in range(0, len(self.listOfApartmentsThatNeedToWork)):
+            putAClient = self.listOfApartmentsThatNeedToWork[i][1]
+            apartmentName = self.listOfApartmentsThatNeedToWork[i][0]
             if(putAClient == True):
                 #Iterate for all the apartments
                 for j in range(0, len(self.listOfApartmentPositions)):
@@ -519,9 +531,9 @@ class TaxiSimulationWindow:
                         break
 
         #This part paint clients on the workplaces
-        for i in range(0, len(listOfWorkplacesThatNeedToGoHome)):
-            putAClient = listOfWorkplacesThatNeedToGoHome[i][1]
-            workplaceName = listOfWorkplacesThatNeedToGoHome[i][0]
+        for i in range(0, len(self.listOfWorkplacesThatNeedToGoHome)):
+            putAClient = self.listOfWorkplacesThatNeedToGoHome[i][1]
+            workplaceName = self.listOfWorkplacesThatNeedToGoHome[i][0]
             if(putAClient == True):
                 #Iterate for all the apartments
                 for j in range(0, len(self.listOfWorkplacesPositions)):

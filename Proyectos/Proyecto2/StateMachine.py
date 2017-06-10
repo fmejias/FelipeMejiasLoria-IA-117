@@ -22,7 +22,7 @@ class StateMachine:
         self.lastMovement = [] #Format of the list = [["A", "up"]]
 
     #This method is in charge of generate the movements for all of the autonoumous taxis
-    def generateMovements(self, taxisPosition, cityGraph):
+    def generateMovements(self, taxisPosition, cityGraph, taxiController):
 
         #Set the graph and the list with the positions
         self.cityGraph = cityGraph
@@ -43,9 +43,16 @@ class StateMachine:
 
             #Extract the coordinates for the taxi
             taxiCoordinates = self.actualPositions[i]
+
+           #Get the taxi from the taxi controller
+            taxiFromTaxiController = taxiController.returnTaxi(self.taxisPosition[i][0])
+            taxiHaveClient = taxiFromTaxiController.getWithClient()
+            taxiRoad = taxiFromTaxiController.getRoadWithClient()
+
             
             #Calculate the possible movements for that taxi
-            self.newPositions = self.calculatePossibleMovements(taxiCoordinates, self.taxisPosition[i][0])
+            self.newPositions = self.calculatePossibleMovements(taxiCoordinates, self.taxisPosition[i][0],taxiRoad, taxiHaveClient)
+            
 
             #Check if there is one path to go
             for j in range(0, len(self.newPositions)):
@@ -76,7 +83,7 @@ class StateMachine:
         return self.taxisPosition
                     
     #This method calculates the possible movements
-    def calculatePossibleMovements(self,coordinates, taxiId):
+    def calculatePossibleMovements(self,coordinates, taxiId, road, haveClient):
 
         #Get the x and y coordinates
         x = coordinates[0]
@@ -90,85 +97,92 @@ class StateMachine:
 
         #Contains the number of all the possible movements
         numberOfMoves = 0
+
+        #This is when the taxi have no client
+        if(haveClient == False):
         
-        if(lastMove == ""):
-            #Check possible movements
-            if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
-                possibleMovements.append(["left", [x,y-1]])
-            if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
-                possibleMovements.append(["up", [x-1,y]])
-            if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
-                possibleMovements.append(["right", [x,y+1]])
-            if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
-                possibleMovements.append(["down", [x+1,y]])
+            if(lastMove == ""):
+                #Check possible movements
+                if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
+                    possibleMovements.append(["left", [x,y-1]])
+                if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
+                    possibleMovements.append(["up", [x-1,y]])
+                if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
+                    possibleMovements.append(["right", [x,y+1]])
+                if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
+                    possibleMovements.append(["down", [x+1,y]])
 
-        #After the first movement
-        else:
-            
-            if(lastMove == "left"):
-                #Check possible movements
-                if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
-                    possibleMovements.append(["left", [x,y-1]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
-                    possibleMovements.append(["up", [x-1,y]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
-                    possibleMovements.append(["down", [x+1,y]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
-                    if(numberOfMoves ==3 or numberOfMoves == 2):
-                        shuffle(possibleMovements)
-                    possibleMovements.append(["right", [x,y+1]])
-                
-            elif(lastMove == "right"):
-                #Check possible movements
-                if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
-                    possibleMovements.append(["right", [x,y+1]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
-                    possibleMovements.append(["up", [x-1,y]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
-                    possibleMovements.append(["down", [x+1,y]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
-                    if(numberOfMoves ==3 or numberOfMoves == 2):
-                        shuffle(possibleMovements)
-                    possibleMovements.append(["left", [x,y-1]])
-                    
-            elif(lastMove == "down"):
-                #Check possible movements
-                if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
-                    possibleMovements.append(["down", [x+1,y]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
-                    possibleMovements.append(["right", [x,y+1]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
-                    possibleMovements.append(["left", [x,y-1]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
-                    if(numberOfMoves ==3 or numberOfMoves == 2):
-                        shuffle(possibleMovements)
-                    possibleMovements.append(["up", [x-1,y]])
-
+            #After the first movement
             else:
-                #Check possible movements
-                if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
-                    possibleMovements.append(["up", [x-1,y]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
-                    possibleMovements.append(["right", [x,y+1]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
-                    possibleMovements.append(["left", [x,y-1]])
-                    numberOfMoves = numberOfMoves + 1
-                if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
-                    if(numberOfMoves ==3 or numberOfMoves == 2):
-                        shuffle(possibleMovements)
-                    possibleMovements.append(["down", [x+1,y]])
-            
+                
+                if(lastMove == "left"):
+                    #Check possible movements
+                    if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
+                        possibleMovements.append(["left", [x,y-1]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
+                        possibleMovements.append(["up", [x-1,y]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
+                        possibleMovements.append(["down", [x+1,y]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
+                        if(numberOfMoves ==3 or numberOfMoves == 2):
+                            shuffle(possibleMovements)
+                        possibleMovements.append(["right", [x,y+1]])
+                    
+                elif(lastMove == "right"):
+                    #Check possible movements
+                    if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
+                        possibleMovements.append(["right", [x,y+1]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
+                        possibleMovements.append(["up", [x-1,y]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
+                        possibleMovements.append(["down", [x+1,y]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
+                        if(numberOfMoves ==3 or numberOfMoves == 2):
+                            shuffle(possibleMovements)
+                        possibleMovements.append(["left", [x,y-1]])
+                        
+                elif(lastMove == "down"):
+                    #Check possible movements
+                    if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
+                        possibleMovements.append(["down", [x+1,y]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
+                        possibleMovements.append(["right", [x,y+1]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
+                        possibleMovements.append(["left", [x,y-1]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
+                        if(numberOfMoves ==3 or numberOfMoves == 2):
+                            shuffle(possibleMovements)
+                        possibleMovements.append(["up", [x-1,y]])
+
+                else:
+                    #Check possible movements
+                    if(self.cityGraph[x-1][y].getNodeValue() == " "):  #Up
+                        possibleMovements.append(["up", [x-1,y]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x][y+1].getNodeValue() == " "):  #Right
+                        possibleMovements.append(["right", [x,y+1]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x][y-1].getNodeValue() == " "):  #Left
+                        possibleMovements.append(["left", [x,y-1]])
+                        numberOfMoves = numberOfMoves + 1
+                    if(self.cityGraph[x+1][y].getNodeValue() == " "):  #Down
+                        if(numberOfMoves ==3 or numberOfMoves == 2):
+                            shuffle(possibleMovements)
+                        possibleMovements.append(["down", [x+1,y]])
+
+        #This is when the taxi have a client
+        else:
+            possibleMovements.append(["right", [road[0][0],road[0][1]]]) #Append the movement of the a*
+            del road[0]
         #Return the list with the possible movements
         return possibleMovements
 

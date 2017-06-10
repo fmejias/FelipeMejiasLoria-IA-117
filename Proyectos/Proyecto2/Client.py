@@ -1,5 +1,5 @@
 ###########################################################################################################
-# Client Class:
+# Taxi Class:
 ##########################################################################################################
 
 class Client:
@@ -53,11 +53,11 @@ class Client:
 
     #This method set the client with the destination to go to work
     def goToWork(self):
-        self.initialBlock = apartment
-        self.destinationBlock = workplace
+        self.initialBlock = self.apartment
+        self.destinationBlock = self.workplace
 
     #This method set the client with the destination to go to home
     def goHome(self):
-        self.initialBlock = workplace
-        self.destinationBlock = apartment
+        self.initialBlock = self.workplace
+        self.destinationBlock = self.apartment
     

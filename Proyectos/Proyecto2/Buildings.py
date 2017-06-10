@@ -78,7 +78,7 @@ class Apartment:
             numberOfClients = self.numberOfClients
 
             #Append all of the clients in the list of waiting for a taxi
-            for j in range(0,numberOfClients):
+            for j in range(0,int(numberOfClients)):
                 self.listOfClientsWaitingATaxi.insert(0, self.listOfClients[j])
 
             #Append the name of the apartment to no repeat the clients on the list
@@ -268,6 +268,15 @@ class ApartmentController:
                 self.listOfApartments[i].setPutAClient(False) #This value change after the taxi grabbed the client
         return listOfApartmentsToGoToWork
 
+    #This method check which apartment need to send clients to work(Lista asi: [["A", True], ["B", True]]) (NombreEdificio, putAClient)
+    def checkClientsToEraseFromApartment(self):
+        listOfApartmentsToGoToWork = []
+        for i in range(0, len(self.listOfApartments)):
+            apartment = self.listOfApartments[i]
+            if(apartment.getNumberOfClientsWaitingForATaxi() == 0):
+                listOfApartmentsToGoToWork.append([apartment.getApartmentName(), apartment.getPutAClient()])
+        return listOfApartmentsToGoToWork
+
     ###Get the list with all of the clients that need to go to work from an specific apartment##
     def getClientsToGoToWork(self, apartmentName, time):
         for i in range(0, len(self.listOfApartments)):
@@ -283,6 +292,7 @@ class ApartmentController:
             if(apartment.getApartmentName() == apartmentName):
                 self.listOfApartments[i].subtractClientsInTheBuilding()
                 self.listOfApartments[i].setPutAClient(True)
+          #      self.listOfApartments[i].clientGrabbedATaxi()
     
     #Return the list with all of the Apartments
     def getListOfApartments(self):

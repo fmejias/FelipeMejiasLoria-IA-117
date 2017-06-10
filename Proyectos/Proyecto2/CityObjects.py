@@ -55,10 +55,7 @@ class CityNode:
             self.typeOfNode = "street"
         elif(value == "D"):
             self.typeOfNode = "taxi"
-    #    elif(value == "O"):
-    #        self.typeOfNode = "wall"
-    #        self.haveAClient = True
-
+    
     #This method set the block as neighbor
     def setBlockAsNeighbor(self):
         self.haveBlockAsNeighbor = True
@@ -214,11 +211,16 @@ class CityGraph:
         self.columns = len(self.cityMatrix[0]) #Columns of the city matrix
         self.taxiInitialPosition = 0 #Variable use in the search method
 
+        self.taxisPosition = [] #List with the actual position of all taxis
+
         #Call the method in charge of create the city graph
         self.createCityGraph(len(city),len(city[0]))
 
         ##This is necessary if there are clients already in the map from the beginning
         self.addClientFromTheBeginningClient()
+
+        ###This is necessary to get all of the taxis in the map
+        self.numberOfTaxis = self.searchAllTaxis()
 
 
     #This method is in charge of create the city matrix as a graph
@@ -420,12 +422,12 @@ class CityGraph:
 
 
     #This method is in charge of perform the A*
-    def astar(self, destinationNode):
+    def astar(self, destinationNode, taxiId):
         #For the beginning, I use this
         self.haveBlockAsNeighbor()
         
         #Search the taxi node
-        sourceNode = self.searchTaxiNode()
+        sourceNode = self.searchTaxiNode(taxiId)
 
         #Create the open list
         openList = []
@@ -504,7 +506,7 @@ class CityGraph:
             openList = self.reorderOpenList(openList)
 
         #Then build the path
-        self.buildTravel(destinationNode)
+        self.buildTravel(destinationNode, taxiId)
 
         #13, reset all of the fathers
         self.resetFatherNodes()
@@ -780,7 +782,7 @@ class CityGraph:
         return self.routeToTravel
 
     #This method build all of the travel
-    def buildTravel(self, destinationNode):
+    def buildTravel(self, destinationNode, taxiId):
         #Reset the route to travel
         self.routeToTravel = []
         
@@ -790,7 +792,7 @@ class CityGraph:
         father = self.cityMatrix[fatherCoordinates[0]][fatherCoordinates[1]]
 
         #While the father is different from the taxi node
-        while (father.getNodeValue() != "D"):
+        while (father.getNodeValue() != taxiId):
             self.routeToTravel.append(fatherCoordinates)
             fatherCoordinates = father.getFather()
             father = self.cityMatrix[fatherCoordinates[0]][fatherCoordinates[1]]
@@ -821,10 +823,10 @@ class CityGraph:
                     return self.cityMatrix[i][j]
 
     #This method is in charge of search the taxi node
-    def searchTaxiNode(self):
+    def searchTaxiNode(self, taxiId):
         for i in range(0,self.rows):
             for j in range(0,self.columns):
-                if(self.cityMatrix[i][j].getNodeValue() == "D"):
+                if(self.cityMatrix[i][j].getNodeValue() == taxiId):
                     self.actualNode = self.cityMatrix[i][j]
                     return self.cityMatrix[i][j]
 
@@ -899,6 +901,15 @@ class CityGraph:
                     taxisPosition.append([self.cityMatrix[i][j].getNodeValue(), [i,j]])
         return taxisPosition
 
+    #This method is in charge of return a list with the id of all of the taxis
+    def searchAllTaxisId(self):
+        taxisId = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().isdigit() == True):
+                    taxisId.append(self.cityMatrix[i][j].getNodeValue())
+        return taxisId
+
     #This method is in charge of return a list with the position of all of the taxis
     def searchAllApartmentsPosition(self):
         apartmentsPosition = []
@@ -937,7 +948,14 @@ class CityGraph:
         for j in range(0,len(listOfNewPositions)):
             x = listOfNewPositions[j][1][0]
             y = listOfNewPositions[j][1][1]
-            self.cityMatrix[x][y].setNodeValue(listOfNewPositions[j][0])   
+            self.cityMatrix[x][y].setNodeValue(listOfNewPositions[j][0])
+
+            #Add the new positions
+            if(len(self.taxisPosition) < self.numberOfTaxis):
+                self.taxisPosition.append([listOfNewPositions[j][0],[x,y]])
+            else:
+                self.taxisPosition[j] = [listOfNewPositions[j][0],[x,y]]
+            
 
     #This method is in charge of return the number of buildings in the map
     def searchAllBuildings(self):
@@ -1002,6 +1020,25 @@ class CityGraph:
 
             #Update final node value
             self.cityMatrix[finalNodeCoordinates[0]][finalNodeCoordinates[1]].setNodeValue("D")
+
+    #This method said if a taxi is in front of a client
+    def pickAClient(self,apartmentName):
+        taxi = ""
+        for i in range(0,len(self.taxisPosition)):
+            taxiPosition = self.taxisPosition[i][1]
+            if(taxiPosition[0]+2 < self.rows):
+                if(self.cityMatrix[taxiPosition[0]+2][taxiPosition[1]].getNodeValue() == apartmentName):
+                    taxi = self.taxisPosition[i][0]
+                    break
+        return taxi
+
+    #This method gets the route to travel with the client
+    def travelWithClientRoad(self, destination, taxiId):
+        destinationNode = self.searchNodeByValue(destination)
+        self.astar(destinationNode, taxiId)
+        route = copy.deepcopy(self.routeToTravel)
+     #   route.pop()
+        return route
 
 
 #This method return an CityGraph Object
