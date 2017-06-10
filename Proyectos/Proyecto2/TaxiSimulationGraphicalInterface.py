@@ -59,15 +59,11 @@ class TaxiSimulationWindow:
         #This is an instance of the ClientsParser
         self.clientsParser = ClientsParser.ClientsParser()
 
-        #Apartment controller and workplace controller
-        self.apartmentController = Buildings.ApartmentController()
-        self.workplaceController = Buildings.WorkplaceController()
+        #Create the instance of the state machine
+        self.stateMachine = StateMachine.StateMachine()
 
         #This variable is going to contain the actual time
         self.actualTime = "0:00"
-
-        #This contains the actual instruction
-        self.actualInstruction = ""
 
         #This is used to save the old coordinates of the taxi
         self.oldCoordinates = []
@@ -93,19 +89,17 @@ class TaxiSimulationWindow:
 
         #This indicates not to perform again the search algorithm
         self.routeAlreadyExecute = False
-
-        #Establish all the possible instructions
-        self.travelInstruction = "pasear"
-        self.searchInstruction = "buscar"
-        self.showInstruction = "mostrar"
-        self.animateInstruction = "animar"
-        self.routeInstruction = "ruta"
-        self.randomClientsInstruction = "clientes"
-        self.specificClientInstruction = "cliente"
-        self.parkInstruction = "parquear"
         
         #Create a City Graph Object
         self.cityGraph = CityObjects.createCityGraph(self.city)
+
+        #Apartment controller and workplace controller
+        self.apartmentController = Buildings.ApartmentController(self.cityGraph.searchAllWorkplaces())
+        self.workplaceController = Buildings.WorkplaceController(self.cityGraph.searchAllWorkplaces())
+
+        #This lists are use to paint the clients in the workplaces and apartments
+        self.listOfApartmentPositions = self.cityGraph.searchAllApartmentsPosition()
+        self.listOfWorkplacesPositions = self.cityGraph.searchAllWorkplacesPosition()
 
         #Initialize the matrix of Labels that are going to compose the Window
         self.matrixOfLabels = self.city
@@ -141,14 +135,13 @@ class TaxiSimulationWindow:
 
         self.buttonBuildingInformation.place(x=10,y=5)
 
+        #######Initial methods to call#######
+
         #Create all of the apartments and clients objects
         self.createApartmentsAndClients()
 
         #Create the panel with the building information
         self.createBuildingsInformation()
-
-        #Create the instance of the state machine
-        self.stateMachine = StateMachine.StateMachine()
 
         #Paint the number of clients
         self.paintNumberOfClients()
@@ -174,6 +167,9 @@ class TaxiSimulationWindow:
 
             #Create the apartment and all the clients of the apartment
             self.apartmentController.addApartment(apartmentName, apartmentClients, workplace)
+
+        #Assign the new workplace controller
+        self.workplaceController = self.apartmentController.getWorkplaceController()
 
 
     #This method is in charge of adding the buildings information(Search for all of the buildings and append a new frame to that board)
@@ -347,8 +343,8 @@ class TaxiSimulationWindow:
         #Aqui va el codigo para estar revisando la hora
         self.actualTime = TimerGraphicalInterface.returnTime()
 
-        #Check if a client has to go to work
-        self.checkClientsToGoToWork(self.actualTime)
+        #Check if a client has to go to work or has to go home
+        self.checkClientsToGoToWorkToGoHome(self.actualTime)
 
         #Por mientras, que solo llame a la funcion que mueve los carros de forma autonoma
         self.master.after(self.updateTime, self.enableTaxisServices)    
@@ -502,23 +498,42 @@ class TaxiSimulationWindow:
         self.matrixOfLabels[x][y] = label
 
     #This method checks if if hast to put a client to go to work
-    def checkClientsToGoToWork(self, time):
+    def checkClientsToGoToWorkToGoHome(self, time):
         listOfApartmentsThatNeedToWork = self.apartmentController.checkClientsToGoToWork(time)
-        listOfApartmentPositions = self.cityGraph.searchAllApartmentsPosition()
+        listOfWorkplacesThatNeedToGoHome = self.workplaceController.checkClientsToGoHome(time)
+
+        #This part paint clients on the apartments
         for i in range(0, len(listOfApartmentsThatNeedToWork)):
             putAClient = listOfApartmentsThatNeedToWork[i][1]
             apartmentName = listOfApartmentsThatNeedToWork[i][0]
             if(putAClient == True):
                 #Iterate for all the apartments
-                for j in range(0, len(listOfApartmentPositions)):
-                    apartment = listOfApartmentPositions[j][0] #Name of the apartment
-                    x = listOfApartmentPositions[j][1][0]
-                    y = listOfApartmentPositions[j][1][1]
+                for j in range(0, len(self.listOfApartmentPositions)):
+                    apartment = self.listOfApartmentPositions[j][0] #Name of the apartment
+                    x = self.listOfApartmentPositions[j][1][0]
+                    y = self.listOfApartmentPositions[j][1][1]
 
                     #Paint the client on the map
                     if(apartment == apartmentName):
                         self.paintClient(x-1,y)
                         break
+
+        #This part paint clients on the workplaces
+        for i in range(0, len(listOfWorkplacesThatNeedToGoHome)):
+            putAClient = listOfWorkplacesThatNeedToGoHome[i][1]
+            workplaceName = listOfWorkplacesThatNeedToGoHome[i][0]
+            if(putAClient == True):
+                #Iterate for all the apartments
+                for j in range(0, len(self.listOfWorkplacesPositions)):
+                    workplace = self.listOfWorkplacesPositions[j][0] #Name of the apartment
+                    x = self.listOfWorkplacesPositions[j][1][0]
+                    y = self.listOfWorkplacesPositions[j][1][1]
+
+                    #Paint the client on the map
+                    if(workplace == workplaceName):
+                        self.paintClient(x-1,y)
+                        break
+                    
 
 #This function display the taxi simulation
 def displayTaxiSimulation():

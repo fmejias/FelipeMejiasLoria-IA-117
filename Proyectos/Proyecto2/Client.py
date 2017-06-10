@@ -43,7 +43,7 @@ class Client:
         self.arriveSchedule = schedule
 
     def getArriveSchedule(self):
-        return self.leaveSchedule
+        return self.arriveSchedule
 
     def setApartment(self,apartment):
         self.apartment = apartment

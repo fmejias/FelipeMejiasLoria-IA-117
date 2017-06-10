@@ -908,6 +908,15 @@ class CityGraph:
                     apartmentsPosition.append([self.cityMatrix[i][j].getNodeValue(), [i,j]])
         return apartmentsPosition
 
+    #This method is in charge of return a list with the position of all of the taxis
+    def searchAllWorkplacesPosition(self):
+        workplacesPosition = []
+        for i in range(0,self.rows):
+            for j in range(0,self.columns):
+                if(self.cityMatrix[i][j].getNodeValue().islower() == True):
+                    workplacesPosition.append([self.cityMatrix[i][j].getNodeValue(), [i,j]])
+        return workplacesPosition
+
     #This method return the graph of the city
     def returnCityGraph(self):
         return self.cityMatrix
