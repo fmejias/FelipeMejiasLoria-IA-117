@@ -212,7 +212,7 @@ class ApartmentController:
     def __init__(self, listOfWorkplaces):
         self.listOfApartments = []
         self.listOfApartmentNames = []
-        self.leaveApartmentHours = ["07:00", "07:30", "08:00", "08:30"]
+        self.leaveApartmentHours = ["07:00", "08:00"]
         self.arriveApartmentHours = ["09:00"]
         self.workplaceController = WorkplaceController(listOfWorkplaces)
 

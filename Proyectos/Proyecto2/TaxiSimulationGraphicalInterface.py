@@ -42,6 +42,10 @@ import Taxi
 
 import random
 
+##Declaration of some global variables to comunicate with the Threads
+taxiSimulationWindow = None
+cityGraph = ""
+
 ###########################################################################################################
 # TaxiSimulationWindow Class:
 # Attributes: masterWindow, frameWindow, instruction. 
@@ -545,10 +549,16 @@ class TaxiSimulationWindow:
                     if(workplace == workplaceName):
                         self.paintClient(x-1,y)
                         break
-                    
+
+    #This method return the city graph
+    def getCityGraph(self):
+        return self.cityGraph.returnCityGraph()
+        
 
 #This function display the taxi simulation
 def displayTaxiSimulation():
+    global taxiSimulationWindow
+    global cityGraph
     master = Tk()#Create the principle window
     master.wm_title("Taxi Simulation") #Add a title to the window
     taxiSimulationWindow = TaxiSimulationWindow(master) #Add the taxi simulation frame to the principle window
@@ -557,3 +567,12 @@ def displayTaxiSimulation():
     master.resizable(width=NO,height=NO) #Set the window as no resizable
     master.mainloop() #Starts the mainloop of the console window
 
+#This function returns the city graph
+def returnCityGraph():
+    global taxiSimulationWindow
+    global cityGraph
+    if(taxiSimulationWindow is not None):
+        cityGraph = taxiSimulationWindow.getCityGraph()
+    else:
+        cityGraph = []
+    return cityGraph
