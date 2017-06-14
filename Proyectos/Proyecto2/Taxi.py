@@ -95,5 +95,7 @@ class TaxiController:
 
             if(taxiRoad == [] and taxiHaveClient == True):
                 self.listOfTaxisObjects[i].setWithNoClient()
+
+    
                 
 

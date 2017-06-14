@@ -1037,7 +1037,6 @@ class CityGraph:
         destinationNode = self.searchNodeByValue(destination)
         self.astar(destinationNode, taxiId)
         route = copy.deepcopy(self.routeToTravel)
-     #   route.pop()
         return route
 
 

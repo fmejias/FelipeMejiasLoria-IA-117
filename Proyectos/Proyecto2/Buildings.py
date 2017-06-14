@@ -114,7 +114,7 @@ class Workplace:
         self.listOfClientsWaitingATaxi = [] #This list contains all of the clients that needs a taxi
         self.listOfClientsApartmentWaitingATaxi = [] #This list works to not append repeated clients
         self.clientsAlreadyWaitingForATaxi = False
-        self.timeToLeave = "09:00"
+        self.timeToLeave = "12:00"
         self.putAClient = True
 
     #This two methods indicates if a client has to be waiting for a taxi
@@ -213,7 +213,7 @@ class ApartmentController:
         self.listOfApartments = []
         self.listOfApartmentNames = []
         self.leaveApartmentHours = ["07:00", "08:00"]
-        self.arriveApartmentHours = ["09:00"]
+        self.arriveApartmentHours = ["12:00"]
         self.workplaceController = WorkplaceController(listOfWorkplaces)
 
     #Create an apartment
@@ -346,7 +346,7 @@ class WorkplaceController:
     def clientGrabbedATaxi(self, workplaceName):
         for i in range(0, len(self.listOfWorkplaces)):
             workplace = self.listOfWorkplaces[i]
-            if(workplace.getApartmentName() == apartmentName):
+            if(workplace.getWorkplaceName() == workplaceName):
                 self.listOfWorkplaces[i].setPutAClient(True)
 
     def getListOfWorkplaces(self):

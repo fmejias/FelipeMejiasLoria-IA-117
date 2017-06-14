@@ -49,7 +49,11 @@ class StateMachine:
             taxiHaveClient = taxiFromTaxiController.getWithClient()
             taxiRoad = taxiFromTaxiController.getRoadWithClient()
 
-            
+            #Set the taxi gets to its destination
+            if(taxiRoad == []):
+                taxiHaveClient = False
+                taxiFromTaxiController.setWithNoClient()
+                
             #Calculate the possible movements for that taxi
             self.newPositions = self.calculatePossibleMovements(taxiCoordinates, self.taxisPosition[i][0],taxiRoad, taxiHaveClient)
             
