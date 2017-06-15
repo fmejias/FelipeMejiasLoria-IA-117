@@ -1,11 +1,13 @@
-class MapParser:
-    def __init__(self, mapFile):
-        self.mapFile = "MapFiles/" + mapFile
+class FileParser:
+    def __init__(self):
+        self.mapFile = "MapFiles/" + "mapa1.txt"
         self.maxNumberOfCharacters = self.getMaxNumberOfCharacters()
         self.intermediateFile = "MapFiles/mapParse.txt"
         self.newFile = "MapFiles/mapFinalParse.txt"
         self.city = []
         self.cityForTkinter = []
+        self.clientsFile = "EspecificacionClientesApartamentos.txt"
+        self.clientsForApartment = []
 
     def printMap(self):
         mapFile = open(self.mapFile,'r') 
@@ -99,6 +101,13 @@ class MapParser:
             print(line, end='')
         newFile.close()
 
+    def parseClients(self):
+        clientsFile = open(self.clientsFile,'r') 
+        for line in clientsFile:
+            self.clientsForApartment.append(line.replace("\n","").split("=")) 
+        clientsFile.close()
+        return self.clientsForApartment
+
     def getCity(self):
         for i in range(0, len(self.city)):
             for j in range(0,len(self.city[0])):
@@ -132,7 +141,8 @@ class MapParser:
         return self.cityForTkinter
         
 def createMapParser():
-    parser = MapParser("mapa1.txt") 
+    parser = FileParser() 
     parser.generateNewMap() 
     x = parser.getCity()
-    return parser.getCity() 
+    return parser.getCity()
+
