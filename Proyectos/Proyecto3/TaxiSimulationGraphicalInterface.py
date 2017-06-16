@@ -92,7 +92,7 @@ class TaxiSimulationWindow:
             displayImage = ImageTk.PhotoImage(displayImage)
         elif(imageValue == "|"):
             #Resize the image with the size of the square
-            displayImage = self.wallVerticalImage.resize((width, height), Image.ANTIALIAS)
+            displayImage = self.wallHorizontalImage.resize((width, height), Image.ANTIALIAS)
             displayImage = ImageTk.PhotoImage(displayImage)
         elif(imageValue == "*"):
             #Resize the image with the size of the square
@@ -142,65 +142,70 @@ class TaxiSimulationWindow:
         if(action == 1):
             self.paintStreet(x,y)
             self.paintTaxi(x,y+1)
-            time.sleep(1)
+            time.sleep(0.1)
             
             reward = self.cityGraph.calculateReward(action)
             self.cityGraph.updateTaxiCoordinates(action)
-            state = self.cityGraph.calculateState()
+            state = copy.deepcopy(self.cityGraph.calculateState())
             
             #If the taxi crashed with something
             if(reward == -500):
                 self.cityGraph.updateTaxiWallCoordinates(2)
                 self.paintWall(x,y+1)
                 self.paintTaxi(x,y)
-                time.sleep(1)
+                time.sleep(0.1)
                 
         elif(action == 2):
             self.paintStreet(x,y)
             self.paintTaxi(x,y-1)
-            time.sleep(1)
+            time.sleep(0.1)
             reward = self.cityGraph.calculateReward(action)
             self.cityGraph.updateTaxiCoordinates(action)
-            state = self.cityGraph.calculateState()
+            state = copy.deepcopy(self.cityGraph.calculateState())
             
             #If the taxi crashed with something
             if(reward == -500):
                 self.cityGraph.updateTaxiWallCoordinates(1)
                 self.paintWall(x,y-1)
                 self.paintTaxi(x,y)
-                time.sleep(1)
+                time.sleep(0.1)
                 
         elif(action == 3):
             self.paintStreet(x,y)
             self.paintTaxi(x-1,y)
-            time.sleep(1)
+            time.sleep(0.1)
             
             reward = self.cityGraph.calculateReward(action)
             self.cityGraph.updateTaxiCoordinates(action)
-            state = self.cityGraph.calculateState()
+            state = copy.deepcopy(self.cityGraph.calculateState())
             
             #If the taxi crashed with something
             if(reward == -500):
                 self.cityGraph.updateTaxiWallCoordinates(4)
                 self.paintWall(x-1,y)
                 self.paintTaxi(x,y)
-                time.sleep(1)
+                time.sleep(0.1)
                 
         elif(action == 4):
             self.paintStreet(x,y)
             self.paintTaxi(x+1,y)
-            time.sleep(1)
+            time.sleep(0.1)
             
             reward = self.cityGraph.calculateReward(action)
             self.cityGraph.updateTaxiCoordinates(action)
-            state = self.cityGraph.calculateState()
+            state = copy.deepcopy(self.cityGraph.calculateState())
             
             #If the taxi crashed with something
             if(reward == -500):
                 self.cityGraph.updateTaxiWallCoordinates(3)
                 self.paintWall(x+1,y)
                 self.paintTaxi(x,y)
-                time.sleep(1)
+                time.sleep(0.1)
+
+        else: #Si no debe hacer nada
+            reward = self.cityGraph.calculateReward(action)
+            self.cityGraph.updateTaxiCoordinates(action)
+            state = copy.deepcopy(self.cityGraph.calculateState())
 
         return [reward, state]
 

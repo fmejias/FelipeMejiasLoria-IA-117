@@ -42,9 +42,9 @@ def buildNeuralNetwork(sensorsNumber, numberOfNeurons):
     model.add(Dropout(0.2))
 
     #Esta es la capa de salida.
-    #Numero de neuronas de esta capa son 3, y por tanto tiene 3 salidas
+    #Numero de neuronas de esta capa son 5 debido a los 5 movimientos posibles, y por tanto tiene 5 salidas
     #Las salidas son: 
-    model.add(Dense(3, kernel_initializer='lecun_uniform'))
+    model.add(Dense(5, kernel_initializer='lecun_uniform'))
     model.add(Activation('linear'))
 
     #Se define el optimizador de la red, el cual se utiliza para calcular el gradiente y es necesario para la compilacion del modelo

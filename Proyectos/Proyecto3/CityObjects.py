@@ -220,10 +220,12 @@ class CityGraph:
 
     def getLeftDistance(self,taxiNode):
         x = taxiNode.getX()
-        y = taxiNode.getY()-1
+        y = taxiNode.getY() 
+        if(taxiNode.getY()-1 > 0):
+            y = taxiNode.getY()-1
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " "):
+        while (nodeValue == " " and y-1 > 0):
             distance = distance + 1
             y = y - 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
@@ -231,32 +233,38 @@ class CityGraph:
 
     def getRightDistance(self,taxiNode):
         x = taxiNode.getX()
-        y = taxiNode.getY() + 1
+        y = taxiNode.getY() 
+        if(taxiNode.getY()+1 < self.columns):
+            y = taxiNode.getY()+1
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " "):
+        while (nodeValue == " " and y+1 < self.columns):
             distance = distance + 1
             y = y + 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
         return distance
 
     def getUpDistance(self,taxiNode):
-        x = taxiNode.getX()-1
+        x = taxiNode.getX() 
+        if(taxiNode.getX()-1 > 0):
+            x = taxiNode.getX()-1
         y = taxiNode.getY()
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " "):
+        while (nodeValue == " " and x-1 > 0):
             distance = distance + 1
             x = x - 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
         return distance
 
     def getDownDistance(self,taxiNode):
-        x = taxiNode.getX()+1
+        x = taxiNode.getX() 
+        if(taxiNode.getX()+1 < self.rows):
+            x = taxiNode.getX()+1
         y = taxiNode.getY()
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " "):
+        while (nodeValue == " " and x+1 < self.rows):
             distance = distance + 1
             x = x + 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
