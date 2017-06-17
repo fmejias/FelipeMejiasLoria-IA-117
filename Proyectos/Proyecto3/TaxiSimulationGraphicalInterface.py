@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import MapParser
 import CityObjects
 
+import numpy as np
 import copy
 import time
 
@@ -139,7 +140,7 @@ class TaxiSimulationWindow:
         y = taxiNode.getY()
         reward = 0
         state = []
-        if(action == 1):
+        if(action == 0):
             self.paintStreet(x,y)
             self.paintTaxi(x,y+1)
             time.sleep(0.1)
@@ -150,12 +151,14 @@ class TaxiSimulationWindow:
             
             #If the taxi crashed with something
             if(reward == -500):
-                self.cityGraph.updateTaxiWallCoordinates(2)
+                self.cityGraph.updateTaxiWallCoordinates(1)
                 self.paintWall(x,y+1)
                 self.paintTaxi(x,y)
                 time.sleep(0.1)
+            else:
+                reward = reward - np.sum(state)
                 
-        elif(action == 2):
+        elif(action == 1):
             self.paintStreet(x,y)
             self.paintTaxi(x,y-1)
             time.sleep(0.1)
@@ -165,12 +168,14 @@ class TaxiSimulationWindow:
             
             #If the taxi crashed with something
             if(reward == -500):
-                self.cityGraph.updateTaxiWallCoordinates(1)
+                self.cityGraph.updateTaxiWallCoordinates(0)
                 self.paintWall(x,y-1)
                 self.paintTaxi(x,y)
                 time.sleep(0.1)
+            else:
+                reward = reward - np.sum(state)
                 
-        elif(action == 3):
+        elif(action == 2):
             self.paintStreet(x,y)
             self.paintTaxi(x-1,y)
             time.sleep(0.1)
@@ -181,12 +186,14 @@ class TaxiSimulationWindow:
             
             #If the taxi crashed with something
             if(reward == -500):
-                self.cityGraph.updateTaxiWallCoordinates(4)
+                self.cityGraph.updateTaxiWallCoordinates(3)
                 self.paintWall(x-1,y)
                 self.paintTaxi(x,y)
                 time.sleep(0.1)
+            else:
+                reward = reward - np.sum(state)
                 
-        elif(action == 4):
+        elif(action == 3):
             self.paintStreet(x,y)
             self.paintTaxi(x+1,y)
             time.sleep(0.1)
@@ -197,10 +204,12 @@ class TaxiSimulationWindow:
             
             #If the taxi crashed with something
             if(reward == -500):
-                self.cityGraph.updateTaxiWallCoordinates(3)
+                self.cityGraph.updateTaxiWallCoordinates(2)
                 self.paintWall(x+1,y)
                 self.paintTaxi(x,y)
                 time.sleep(0.1)
+            else:
+                reward = reward - np.sum(state)
 
         else: #Si no debe hacer nada
             reward = self.cityGraph.calculateReward(action)

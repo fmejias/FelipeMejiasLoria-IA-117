@@ -84,11 +84,10 @@ class CityGraph:
         self.taxiInitialPosition = 0
         self.taxiX = 0
         self.taxiY = 0
-        self.nothing = 0
-        self.right = 1
-        self.left = 2
-        self.up = 3
-        self.down = 4
+        self.right = 0
+        self.left = 1
+        self.up = 2
+        self.down = 3
 
         self.createCityGraph(len(city),len(city[0]))
 
@@ -180,9 +179,7 @@ class CityGraph:
         taxiX = taxiNode.getX()
         taxiY = taxiNode.getY()
         crashed = 0
-        if(action == self.nothing):
-            crashed = 0
-        elif(action == self.right):
+        if(action == self.right):
             rightNode = self.searchNodeByCoordinates(taxiX, taxiY+1)
             if(rightNode.getNodeValue() != " "):
                 crashed = 1
@@ -206,7 +203,7 @@ class CityGraph:
         if(crashed == 1):
             reward = -500
         else:
-            reward = -5
+            reward = 30
 
         return reward
 
@@ -225,7 +222,7 @@ class CityGraph:
             y = taxiNode.getY()-1
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " " and y-1 > 0):
+        while (nodeValue == " "):
             distance = distance + 1
             y = y - 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
@@ -238,7 +235,7 @@ class CityGraph:
             y = taxiNode.getY()+1
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " " and y+1 < self.columns):
+        while (nodeValue == " "):
             distance = distance + 1
             y = y + 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
@@ -251,7 +248,7 @@ class CityGraph:
         y = taxiNode.getY()
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " " and x-1 > 0):
+        while (nodeValue == " "):
             distance = distance + 1
             x = x - 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
@@ -264,7 +261,7 @@ class CityGraph:
         y = taxiNode.getY()
         nodeValue = self.cityMatrix[x][y].getNodeValue()
         distance = 0
-        while (nodeValue == " " and x+1 < self.rows):
+        while (nodeValue == " "):
             distance = distance + 1
             x = x + 1
             nodeValue = self.cityMatrix[x][y].getNodeValue()
@@ -274,9 +271,7 @@ class CityGraph:
         taxiNode = self.searchTaxi()
         taxiX = taxiNode.getX()
         taxiY = taxiNode.getY()
-        if(action == self.nothing):
-            self.cityMatrix[taxiX][taxiY].setNodeValue("D")
-        elif(action == self.right):
+        if(action == self.right):
             self.cityMatrix[taxiX][taxiY].setNodeValue(" ")
             self.cityMatrix[taxiX][taxiY+1].setNodeValue("D")
         elif(action == self.left):
@@ -293,9 +288,7 @@ class CityGraph:
         taxiNode = self.searchTaxi()
         taxiX = taxiNode.getX()
         taxiY = taxiNode.getY()
-        if(action == self.nothing):
-            self.cityMatrix[taxiX][taxiY].setNodeValue("D")
-        elif(action == self.right):
+        if(action == self.right):
             self.cityMatrix[taxiX][taxiY].setNodeValue("-")
             self.cityMatrix[taxiX][taxiY+1].setNodeValue("D")
         elif(action == self.left):
